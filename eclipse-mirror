@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#
+# Eclipse P2 mirroring script
+#
+# (c) 2013 Gerrit Beine <gerrit.beine@gmx.de>
+#
+# See
+# http://wiki.eclipse.org/Equinox_p2_Repository_Mirroring
+# http://wiki.eclipse.org/Eclipse_Project_Update_Sites
+#
+
+# Specify path to Eclipse executable
+eclipse="/Users/gbeine/Projekte/Eclipse/juno-minimal/eclipse"
+
+# Mirror repository metadata
+function mirror_metadata()
+{
+    local source=$1
+    local target=$2
+    run_mirror ${source} ${target} "org.eclipse.equinox.p2.metadata.repository.mirrorApplication"
+}
+
+# Mirror repository content
+function mirror_artifacts()
+{
+    local source=$1
+    local target=$2
+    run_mirror ${source} ${target} "org.eclipse.equinox.p2.artifact.repository.mirrorApplication"
+}
+
+# Execute Eclipse mirror
+function run_mirror()
+{
+    local source=$1
+    local target=$2
+    local application=$3
+    local options=$4
+    echo
+    echo
+    echo "--------------------------------------------------------------------------------"
+    echo
+    echo "Mirroring ${source}"
+    echo
+    ${eclipse} -nosplash -verbose \
+        -application ${application} \
+        -source ${source} \
+        -destination ${target}
+    echo
+    echo "--------------------------------------------------------------------------------"
+    echo
+}
+
+target=$1
+
+if [[ -z "${target}" || ! -d ${target} ]]; then
+    echo "Specificy target directory"
+    exit 1
+fi
+
+while read LINE; do
+	if [[ -z ${LINE} || "${LINE}" == "#"* ]]; then
+		continue
+	fi
+    SOURCE=${LINE%%#>>#*}
+    TARGET=${LINE##*#>>#}
+    mirror_metadata ${SOURCE} ${target}/${TARGET}
+    mirror_artifacts ${SOURCE} ${target}/${TARGET}
+done < eclipse-update-sites.map
+
+

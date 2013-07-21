@@ -1,0 +1,88 @@
+#!/bin/bash
+
+#
+# Git multi cherry-pick script
+#
+# (c) 2013 Gerrit Beine <gerrit.beine@gmx.de>
+#
+
+mark="$1"
+
+if [[ -z "$mark" ]]; then
+  echo "Execute $0 'mark'"
+  exit 1
+fi
+
+branch="development"
+date="3.weeks"
+msg_file=".git/MULTIPICK_MSG"
+
+svn_commits=`git log $branch --format=%H --grep="git-svn-id" --since="$date"`
+mark_commits=`git log $branch --format=%H --grep="$mark" --since="$date"`
+
+mark_dcommits=""
+unpicked_commits=""
+
+
+for sha in $mark_commits; do
+
+  # Check if commit is a Subversion commit
+  # Ignore all SVN commits for the given mark
+  if [[ "$svn_commits" == *"$sha"* ]]; then
+    mark_dcommits="$mark_dcommits $sha"
+  else
+    # The current commit was not fetched from SVN
+    # Find cherry-picks of the current commit
+    pick_commits=`git log "master" --format=%H --grep="picked from commit $sha" --since="$date"`
+    # Set pick state of the current commit
+    pick_state=`git log "master" --format=%H --grep="picked from commit $sha" --since="$date" | wc -l`
+    if [[ 0 -lt $pick_state ]]; then
+      echo "Commit $sha picked by $pick_commits"
+    else
+      echo "Commit $sha not picked since $date"
+      unpicked_commits="$sha $unpicked_commits"
+    fi
+  fi
+
+done
+
+if [[ -z "$unpicked_commits" ]]; then
+  echo "No unpicked commits found, see you later!"
+  exit
+fi
+
+
+if [[ -n "$unpicked_commits" ]]; then
+  echo "$mark: comprehensive commit" >> $msg_file
+fi
+
+for sha in $unpicked_commits; do
+
+# TODO: implement show details (d) here
+  echo -n "Cherry-pick commit ($sha)? (y|n)"
+  read REPLY
+
+  if [[ "$REPLY" == "Y" || "$REPLY" == "y" ]]; then
+    git cherry-pick --no-commit -x "$sha"
+    state=$?
+# TODO: implement merge support here
+    if [[ 0 -lt $state ]]; then
+      echo "Cherry pick caused conflict, please merge manually"
+      echo "Remember to _not_ commit anything!"
+      echo "Press enter to continue after merging"
+      read
+    fi
+    echo "----------------------------------------" >> $msg_file
+    cat .git/MERGE_MSG >> $msg_file
+    rm .git/MERGE_MSG
+  fi
+
+done
+
+if [[ -n "$unpicked_commits" ]]; then
+  mv $msg_file .git/MERGE_MSG
+fi
+
+echo "Cherry picking finished!"
+echo "Execute git commit now :-)"
+
