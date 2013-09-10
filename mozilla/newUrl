@@ -1,0 +1,2 @@
+#!/bin/sh
+firefox -remote 'openURL('"$1"',new-tab)' || firefox "$1" &

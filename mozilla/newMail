@@ -1,0 +1,3 @@
+#!/bin/sh
+link=`echo "$1" | sed 's/^mailto://'`
+thunderbird -remote 'mailto('"$link"')' || thunderbird -mail "$1" &
