@@ -1,0 +1,54 @@
+#!/usr/local/bin/bash
+
+SPAMC="/usr/local/bin/spamc"
+SAFECAT="/usr/local/bin/safecat"
+MAILDIR="./Maildir"
+JUNKDIR="./Maildir/.Junk"
+
+mail=`$SPAMC`
+exitcode=$?
+
+size=`echo $mail | wc -c`
+if [ $size -gt 250000 ]; then
+    exit 0;
+fi
+
+spam=`printf "%s\n" "$mail" | grep 'X-Spam-Status' | sed 's/^ //'`
+
+if [ $spam = "[Yy][Ee][Ss]" ]; then
+    printf "%s\n" "$mail" | $SAFECAT "$JUNKDIR/tmp" "$JUNKDIR/new"
+    if [ $? -eq 0 ]; then
+        exit 99
+    fi
+    exit 111
+else
+    printf "%s\n" "$mail" | $SAFECAT "$MAILDIR/tmp" "$MAILDIR/new"
+    exit 0
+fi
+#!/usr/local/bin/bash
+
+SPAMC="/usr/local/bin/spamc"
+SAFECAT="/usr/local/bin/safecat"
+MAILDIR="./Maildir"
+JUNKDIR="./Maildir/.Junk"
+
+mail=`$SPAMC`
+exitcode=$?
+
+size=`echo $mail | wc -c`
+if [ $size -gt 250000 ]; then
+    exit 0;
+fi
+
+spam=`printf "%s\n" "$mail" | grep 'X-Spam-Status' | sed 's/^ //'`
+
+if [ $spam = "[Yy][Ee][Ss]" ]; then
+    printf "%s\n" "$mail" | $SAFECAT "$JUNKDIR/tmp" "$JUNKDIR/new"
+    if [ $? -eq 0 ]; then
+        exit 99
+    fi
+    exit 111
+else
+    printf "%s\n" "$mail" | $SAFECAT "$MAILDIR/tmp" "$MAILDIR/new"
+    exit 0
+fi
