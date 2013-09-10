@@ -1,0 +1,456 @@
+#!/usr/bin/env perl
+
+#
+# LDAP Administration Script
+# Gerrit Beine <mail@gerritbeine.com>
+#
+
+use strict;
+use warnings;
+use Config::Simple;
+use Digest::SHA1 ("sha1");
+use Getopt::Long;
+use MIME::Base64;
+use Net::LDAP;
+use Net::LDAP::Entry;
+use Switch;
+use Term::ReadKey;
+
+my $MINUIDGID = 1000;
+my $MINSYSUIDGID = 5000;
+
+my $command = 'help';
+my $verbose = '';
+my $config = {};
+my $ldap = {};
+my $name = ''; # The name of the group or user to modify
+my $cn = ''; # The user's surname
+my $sn = ''; # The user's prename
+my $host = ''; # The host to enable a user/group for
+my $username = ''; # The user's name to join a group
+my $is_technical = ''; # Separate personal accounts from technical accounts
+
+GetOptions(
+    'command|c=s' => \$command,
+    'name|n=s' => \$name,
+    'sn|s=s' => \$sn,
+    'cn=s' => \$cn,
+    'username=s' => \$username,
+    'host=s' => \$host,
+    'technical' => \$is_technical,
+    'verbose!' => \$verbose
+);
+
+$config = ldap_config();
+$ldap = ldap_connect($config);
+
+switch ($command) {
+    case 'adduser' { adduser($ldap, $name, $cn, $sn); }
+    case 'addgroup' { addgroup($ldap, $name); }
+    case 'joingroup' { joingroup($ldap, $name, $username); }
+    case 'enuser' { enuser($ldap, $name, $host); }
+    case 'engroup' { engroup($ldap, $name, $host); }
+    case 'listusers' { listusers($ldap); }
+    case 'listgroups' { listgroups($ldap); }
+    case 'listmembers' { listmembers($ldap, $name); }
+    case 'help' { HELP_MESSAGE(); }
+    else { HELP_MESSAGE(); }
+}
+
+# Add a user
+sub adduser {
+    my $ldap = shift;
+    my $name = shift;
+    my $cn = shift;
+    my $sn = shift;
+    my $uid = ldap_next_free_uidgid($ldap);
+    print "Enter password: ";
+    ReadMode ('noecho');
+    my $password = <>;
+    ReadMode ('restore');
+    print "\n";
+    print "Re-enter password: ";
+    ReadMode ('noecho');
+    my $password_check = <>;
+    ReadMode ('restore');
+    print "\n";
+    if ($password ne $password_check) {
+        die("Passwords do not match");
+    }
+    chomp($password);
+    print "Add user $name ($sn, $cn)\n";
+    ldap_add_user($ldap, $name, $cn, $sn, $uid, password_hash($password));
+    ldap_add_group($ldap, $name, $uid);
+}
+
+# Add a group
+sub addgroup {
+    my $ldap = shift;
+    my $name = shift;
+    my $gid = ldap_next_free_uidgid($ldap);
+    print "Add group $name\n";
+    ldap_add_group($ldap, $name, $gid);
+}
+
+# A user joins a group
+sub joingroup {
+    my $ldap = shift;
+    my $name = shift;
+    my $username = shift;
+    print "User ", $username, " joining group ", $name, "\n";
+    ldap_join_group($ldap, $name, $username);
+}
+
+# Enable user for host
+sub enuser {
+    my $ldap = shift;
+    my $name = shift;
+    my $host = shift;
+    print "Enable user ", $name, " for host ", $host, "\n";
+    ldap_enable_user($ldap, $name, $host);
+    ldap_enable_group($ldap, $name, $host);
+}
+
+# Enable group for host
+sub engroup {
+    my $ldap = shift;
+    my $name = shift;
+    my $host = shift;
+    print "Enable group ", $name, " for host ", $host, "\n";
+    ldap_enable_group($ldap, $name, $host);
+}
+
+# List all users
+sub listusers {
+    my $ldap = shift;
+    foreach my $user (ldap_list_users($ldap)) {
+        if ($verbose) {
+            $user->dump();
+        } else {
+            print $user->get_value('uid'), " (", $user->get_value('uidNumber'), ")\n";
+        }
+    }
+}
+
+# List all groups
+sub listgroups {
+    my $ldap = shift;
+    foreach my $group (ldap_list_groups($ldap)) {
+        if ($verbose) {
+            $group->dump();
+        } else {
+            print $group->get_value('cn'), " (", $group->get_value('gidNumber'), ")\n";
+        }
+    }
+}
+
+# List members of group
+sub listmembers {
+    my $ldap = shift;
+    my $name = shift;
+    foreach my $group (ldap_list_members($ldap, $name)) {
+        if ($verbose) {
+            $group->dump();
+        } else {
+            print $group->get_value('cn'), ": ", join(', ', $group->get_value('memberUid')), "\n";
+        }
+    }
+}
+
+#
+# Private methods, performing LDAP operations
+#
+
+# Add a user to LDAP
+sub ldap_add_user {
+    my $ldap = shift;
+    my $name = shift;
+    my $cn = shift;
+    my $sn = shift;
+    my $uid = shift;
+    my $password = shift;
+    my $home = "/home/$name";
+    my $dn = "uid=$name,".$config->{'people'};
+    $verbose && print "Add ", $dn, "\n";
+    my $user = new Net::LDAP::Entry($dn);
+    $user->add(
+        'uid' => $name,
+        'uidNumber' => $uid,
+        'cn' => $cn,
+        'sn' => $sn,
+        'gidNumber' => $uid,
+        'homeDirectory' => $home,
+        'userPassword' => $password,
+        'loginShell' => "/bin/bash",
+        'objectClass' => [ 'posixAccount', 'inetOrgPerson', 'organizationalPerson', 'person', 'top' ]
+    );
+    my $mesg = $user->update($ldap);
+    $verbose && print "LDAP update return code: ", $mesg->code(), "\n";
+}
+
+# Add a group to LDAP
+sub ldap_add_group {
+    my $ldap = shift;
+    my $name = shift;
+    my $gid = shift;
+    my $dn = "cn=$name,".$config->{'group'};
+    $verbose && print "Add ", $dn, "\n";
+    my $group = new Net::LDAP::Entry($dn);
+    $group->add(
+        'cn' => $name,
+        'gidNumber' => $gid,
+        'objectClass' => [ 'posixGroup', 'top' ]
+    );
+    my $mesg = $group->update($ldap);
+    $verbose && print "LDAP update return code: ", $mesg->code(), "\n";
+}
+
+# Join a group
+sub ldap_join_group {
+    my $ldap = shift;
+    my $name = shift;
+    my $username = shift;
+    my $group = ldap_search_group($ldap, $name);
+    $verbose && $group->dump();
+    $group->add('memberUid' => $username);
+    my $mesg = $group->update($ldap);
+    $verbose && print "LDAP update return code: ", $mesg->code(), "\n";
+}
+
+# Enable user for host
+sub ldap_enable_user {
+    my $ldap = shift;
+    my $name = shift;
+    my $host = shift;
+    my $dn = "uid=$name,ou=people,".$config->{$host};
+    my $original = "uid=$name,".$config->{'people'};
+    $verbose && print "Add alias ", $dn, " to ", $original, "\n";
+    my $alias = new Net::LDAP::Entry($dn);
+    $alias->add(
+        'uid' => $name,
+        'aliasedObjectName' => $original,
+        'objectClass' => [ 'extensibleObject', 'alias', 'top' ]
+    );
+    my $mesg = $alias->update($ldap);
+    $verbose && print "LDAP update return code: ", $mesg->code(), "\n";
+}
+
+# Enable group for host
+sub ldap_enable_group {
+    my $ldap = shift;
+    my $name = shift;
+    my $host = shift;
+    my $dn = "cn=$name,ou=group,".$config->{$host};
+    my $original = "cn=$name,".$config->{'group'};
+    $verbose && print "Add alias ", $dn, " to ", $original, "\n";
+    my $alias = new Net::LDAP::Entry($dn);
+    $alias->add(
+        'cn' => $name,
+        'aliasedObjectName' => $original,
+        'objectClass' => [ 'extensibleObject', 'alias', 'top' ]
+    );
+    my $mesg = $alias->update($ldap);
+    $verbose && print "LDAP update return code: ", $mesg->code(), "\n";
+}
+
+# List LDAP users
+sub ldap_list_users {
+    my $ldap = shift;
+    my $filter = "(objectClass=posixAccount)";
+    $verbose && print "Search base: ", $config->{'people'}, ", filter: ", $filter, "\n";
+    my $mesg = $ldap->search(
+        base => $config->{'people'},
+        filter => $filter,
+        attrs => [ 'uid', 'uidNumber' ]
+    );
+    $verbose && print "LDAP search return code: ", $mesg->code(), "\n";
+    my @users = $mesg->entries();
+    return @users;
+}
+
+# List LDAP groups
+sub ldap_list_groups {
+    my $ldap = shift;
+    my $filter = "(objectClass=posixGroup)";
+    $verbose && print "Search base: ", $config->{'group'}, ", filter: ", $filter, "\n";
+    my $mesg = $ldap->search(
+        base => $config->{'group'},
+        filter => $filter,
+        attrs => [ 'cn', 'gidNumber' ]
+    );
+    $verbose && print "LDAP search return code: ", $mesg->code(), "\n";
+    my @groups = $mesg->entries();
+    return @groups;
+}
+
+# List LDAP group members
+sub ldap_list_members {
+    my $ldap = shift;
+    my $name = shift;
+    my $filter = "(&(objectClass=posixGroup)(cn=".$name."))";
+    $verbose && print "Search base: ", $config->{'group'}, ", filter: ", $filter, "\n";
+    my $mesg = $ldap->search(
+        base => $config->{'group'},
+        filter => $filter,
+        attrs => [ 'cn', 'memberUid' ]
+    );
+    $verbose && print "LDAP search return code: ", $mesg->code(), "\n";
+    my @groups = $mesg->entries();
+    return @groups;
+}
+
+# Search an LDAP group within the directory
+sub ldap_search_group {
+    my $ldap = shift;
+    my $group = shift;
+    my $filter = "(&(objectClass=posixGroup)(cn=$group))";
+    $verbose && print "Search base: ", $config->{'group'}, ", filter: ", $filter,  "\n";
+    my $mesg = $ldap->search(
+        base => $config->{'group'},
+        filter => $filter
+    );
+    $verbose && print "LDAP search return code: ", $mesg->code(), "\n";
+    return $mesg->entry(0);
+}
+
+# Calculate the next free UID/GID
+sub ldap_next_free_uidgid {
+    my $ldap = shift;
+    my $gid = ldap_search_maximum_gidNumber($ldap);
+    my $uid = ldap_search_maximum_uidNumber($ldap);
+    my $uidgid = $uid > $gid ? $uid : $gid;
+    $verbose && print "Maximum UID: ", $uid, ", maximum GID: ", $gid, "\n";
+    print "Next free UID/GID: ", $uidgid+1, "\n";
+    return $uidgid+1;
+}
+
+# Search for the maximum uidNumber
+sub ldap_search_maximum_uidNumber {
+    my $ldap = shift;
+    $verbose && print "Search base: ", $config->{'people'}, ", filter: (objectClass=posixAccount)\n";
+    my $mesg = $ldap->search(
+        base => $config->{'people'},
+        filter => '(objectClass=posixAccount)',
+        attrs => [ 'uidNumber' ]
+    );
+    $verbose && print "LDAP search return code: ", $mesg->code(), "\n";
+    my $uid = 0;
+    foreach my $entry ($mesg->entries) {
+        if ($is_technical) {
+            if ($entry->get_value('uidNumber') >= $MINSYSUIDGID) {
+                  $verbose && $entry->dump;
+                  if ($entry->get_value('uidNumber') > $uid) {
+                      $uid = $entry->get_value('uidNumber');
+                  }
+            }
+        } else {
+            if ($entry->get_value('uidNumber') >= $MINUIDGID && $entry->get_value('uidNumber') < $MINSYSUIDGID) {
+                  $verbose && $entry->dump;
+                  if ($entry->get_value('uidNumber') > $uid) {
+                      $uid = $entry->get_value('uidNumber');
+                  }
+            }
+        }
+    }
+    $verbose && print "Maximum UID: ", $uid, "\n";
+    return $uid;
+}
+
+# Search for the maximum gidNumber
+sub ldap_search_maximum_gidNumber {
+    my $ldap = shift;
+    $verbose && print "Search base: ", $config->{'group'}, ", filter: (objectClass=posixGroup)\n";
+    my $mesg = $ldap->search(
+        base => $config->{'group'},
+        filter => '(objectClass=posixGroup)',
+        attrs => [ 'gidNumber' ]
+    );
+    $verbose && print "LDAP search return code: ", $mesg->code(), "\n";
+    my $gid = 0;
+    foreach my $entry ($mesg->entries) {
+        if ($is_technical) {
+            if ($entry->get_value('gidNumber') >= $MINSYSUIDGID) {
+                  $verbose && $entry->dump;
+                  if ($entry->get_value('gidNumber') > $gid) {
+                      $gid = $entry->get_value('gidNumber');
+                  }
+            }
+        } else {
+            if ($entry->get_value('gidNumber') >= $MINUIDGID && $entry->get_value('gidNumber') < $MINSYSUIDGID) {
+                  $verbose && $entry->dump;
+                  if ($entry->get_value('gidNumber') > $gid) {
+                      $gid = $entry->get_value('gidNumber');
+                  }
+            }
+        }
+    }
+    $verbose && print "Maximum GID: ", $gid, "\n";
+    return $gid;
+}   
+
+# Read LDAP configuration from libnss
+sub ldap_config {
+    my $nss_config = '/etc/libnss-ldap.conf';
+    my $nss_secret = '/etc/libnss-ldap.secret';
+    my $config = new Config::Simple($nss_config);
+    my $base = join(',', $config->param('base'));
+    my $uri = join(',', $config->param('uri'));
+    my $binddn = join(',', $config->param('rootbinddn'));
+    $verbose && print "$base\n";
+    $verbose && print "$uri\n";
+    $verbose && print "$binddn\n";
+    open(SECRET, $nss_secret);
+    chomp(my $secret = <SECRET>);
+    close(SECRET);
+    return {
+        'base' => $base,
+        'binddn' => $binddn,
+        'uri' => $uri,
+        'secret' => $secret,
+        'people' => "ou=people,$base",
+        'group' => "ou=group,$base",
+        'host1' => "ou=host1,ou=hosts,$base",
+        'host2' => "ou=host2,ou=hosts,$base",
+        'host3' => "ou=host3,ou=hosts,$base"
+    };
+}
+
+# Connect and bind to LDAP
+sub ldap_connect {
+   my $config = shift;
+   my $ldap = new Net::LDAP($config->{'uri'}, onerror => 'die') or die($@);
+   my $mesg = $ldap->bind($config->{'binddn'}, password => $config->{'secret'});
+   $verbose && print "LDAP connect return code: ", $mesg->code(), "\n";
+   return $ldap;
+}
+
+# Generates a password hash
+sub password_hash {
+   my $password = shift;
+   my $salt = make_salt(4);
+   my $hash = "{SSHA}" . encode_base64(sha1($password . $salt) .  $salt,'' );
+   return $hash;
+}
+
+# Generates random password salt - taken from smbldap-passwd.pl
+sub make_salt {
+   my $length = 32;
+   $length = $_[0] if exists($_[0]);
+   my @tab = ('.', '/', 0..9, 'A'..'Z', 'a'..'z');
+   return join "",@tab[map {rand 64} (1..$length)];
+}
+
+sub HELP_MESSAGE {
+    print <<"    EOM"
+    LDAP Administration
+    Usage:
+    -c adduser -n name [-t]          # add a user with group [t - technical user]
+    -c addgroup -n name [-t]         # add a group [t - technical group]
+    -c joingroup -n name -u username # user joins a group
+    -c enuser -n name -h host        # enable a user for host
+    -c engroup -n name -h host       # enable a group for host
+    -c listgroups                    # list all groups 
+    -c listusers                     # list all users
+    -c listmembers -n name           # list members of a group
+    EOM
+}
