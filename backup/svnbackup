@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# svnbackup - Backup für Subversion Repositories
+#
+# (c) 2011 Gerrit Beine
+#
+umask 022
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+if [ -f /etc/sysconfig/svnbackup ] ; then
+  . /etc/sysconfig/svnbackup
+fi
+
+DATE=`date +%Y%m%d`
+
+CLEAN_DATE=`date --date="${SVN_KEEP_DAYS} days ago" +%Y%m%d`
+CLEAN_FIND_OPTIONS="-type f -not -newerct ${CLEAN_DATE} -exec rm {} ;"
+
+COMPRESS_FIND_OPTIONS="-type f -exec gzip --force --best --rsyncable {} ;"
+
+
+for repos in `find ${SVN_DATA_DIR} -type d`; do
+
+	file=${repos##*/}
+	[ $DEBUG ] && echo "svnadmin dump '${repos}' > ${SVN_BACKUP_DIR}/${file}-${DATE}.svndump"
+	svnadmin dump "${repos}" > "${SVN_BACKUP_DIR}/${file}-${DATE}.svndump"
+
+	[ $DEBUG ] && echo "find ${SVN_BACKUP_DIR} -name '${repos}*' ${CLEAN_FIND_OPTIONS}"
+	find "${SVN_BACKUP_DIR}" -name "${file}*" ${CLEAN_FIND_OPTIONS}
+
+done
+
+if [ -n "$SVN_COMPRESS_BACKUP" -a "$SVN_COMPRESS_BACKUP" = "yes" ]; then
+	[ $DEBUG ] && echo "find '${SVN_BACKUP_DIR}'  -name *.svndump ${COMPRESS_FIND_OPTIONS}"
+	find "${SVN_BACKUP_DIR}" -name "*.svndump" ${COMPRESS_FIND_OPTIONS}
+fi
+
+exit 0

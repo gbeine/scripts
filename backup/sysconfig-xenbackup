@@ -1,0 +1,73 @@
+DEBUG=1
+
+
+## Type:        string
+## Default:     ""
+#
+# The list of identifiers used a prefixes for the logical volumes
+#
+XEN_HOSTS=""
+
+## Type:        string
+## Default:     ""
+#
+# The volume group to create backups from
+#
+LVM_VG="vg1"
+
+## Type:        string
+## Default:     "512M"
+#
+# Size of the logical volume snapshot
+#
+LVM_SIZE="512M"
+
+## Type:        string
+## Default:     "backup"
+#
+# Suffix used for all logical volume snapshots
+#
+LVM_SUFFIX="backup"
+
+## Type:        string
+## Default:     "-not -name *tmp"
+#
+# Find options added to specify which logical volumes should be ignored
+#
+LVM_IGNORE="-not -name '*tmp'"
+
+## Type:        string
+## Default:     ""
+#
+# The directory where to mount snapshots during backup
+#
+LVM_SNAPSHOT="/mnt/snapshots"
+
+## Type:        string(/var/log/xen)
+## Default:     /var/log/xen
+#
+# The directory where to put the logfiles
+#
+LOG_DIR="/var/log/xen"
+
+## Type:        string
+## Default:     ""
+#
+# The rsync server's address
+#
+RSYNC_HOST=""
+
+## Type:        string
+## Default:     ""
+#
+# The rsync options
+#
+RSYNC_OPTIONS="-rav --stats --progress"
+
+## Type:        string
+## Default:     "--exclude=/dev --exclude=/media --exclude=/mnt --exclude=/proc --exclude=/sys --exclude=/tmp --exclude=/var/lib/ntp/proc --exclude=/var/tmp"
+#
+# The filesystem patterns rsync should exclude during backup
+#
+#RSYNC_EXCLUDE="--exclude=/bin --exclude=/dev --exclude=/lib --exclude=/lib64 --exclude=/media --exclude=/mnt --exclude=/opt --exclude=/proc --exclude=/sbin --exclude=/selinux --exclude=/sys --exclude=/tmp --exclude=/usr --exclude=/var/lib/ntp/proc --exclude=/var/tmp"
+

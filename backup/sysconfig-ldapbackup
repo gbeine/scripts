@@ -1,0 +1,22 @@
+DEBUG=1
+
+## Type:        string
+## Default:     "/var/backup/ldap"
+#
+# The directory where to save the OpenLDAP backup files
+#
+LDAP_BACKUP_DIR=/var/backup/ldap
+
+## Type:        integer
+## Default:     14
+#
+# The number of days to keep OpenLDAP backup files
+#
+LDAP_KEEP_DAYS=14
+
+## Type:        yesno
+## Default:     yes
+#
+# Compress OpenLDAP backup files
+#
+LDAP_COMPRESS_BACKUP=yes

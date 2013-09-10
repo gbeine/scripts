@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+# xenbackup - Backup von Xen Hosts
+#
+# (c) 2011 Gerrit Beine
+#
+
+umask 022
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+if [ -f /etc/sysconfig/xenbackup ] ; then
+    . /etc/sysconfig/xenbackup
+fi
+
+function create_snapshots {
+  host=${1}
+  [ ${DEBUG} ] && echo "Creating snapshots for ${host}"
+  # Nur Volumes suchen, die zu einem Host gehören und nicht auf das Snapshot Suffix enden
+  for vol in `find /dev/${LVM_VG} -type l -name "${host}*" -not -name "*${LVM_SUFFIX}" ${LVM_IGNORE}`; do
+    [ ${DEBUG} ] && echo "Found volume ${vol}"
+    snapshot="${vol##*/}_${LVM_SUFFIX}"
+    [ ${DEBUG} ] && echo "Snapshot name ${snapshot}"
+    # Prüfen, ob Snapshot bereits existiert
+    [ -b /dev/${LVM_VG}/${snapshot} ] || /sbin/lvcreate -L${LVM_SIZE} -s -n ${snapshot} ${vol}
+    # Prüfen, ob Verzeichnis bereits existiert
+    [ -d ${LVM_SNAPSHOT}/${snapshot} ] || /bin/mkdir ${LVM_SNAPSHOT}/${snapshot}
+    # Prüfen, ob Verzeichnis bereits gemountet ist
+    grep ${LVM_SNAPSHOT}/${snapshot} /etc/mtab >/dev/null || /bin/mount -o ro ${vol} ${LVM_SNAPSHOT}/${snapshot}
+  done;
+}
+
+function remove_snapshots {
+  host=${1}
+  [ ${DEBUG} ] && echo "Removing snapshots for ${host}"
+  for snapshot in `find /dev/${LVM_VG} -type l -name "${host}*${LVM_SUFFIX}"`; do
+    [ ${DEBUG} ] && echo "Found snapshot ${snapshot}"
+    vol="${snapshot%%_${LVM_SUFFIX}}"
+    [ ${DEBUG} ] && echo "Volume name ${vol}"
+    /bin/umount ${vol}
+    while [ -b ${snapshot} ]; do
+      /sbin/lvremove -f ${snapshot}
+    done
+  done;
+}
+
+function backup {
+  host=${1}
+  [ ${DEBUG} ] && echo "Running backup for ${host}"
+  for dir in `find ${LVM_SNAPSHOT} -type d -name "${host}*"`; do
+    [ ${DEBUG} ] && echo "Found backup directory ${dir}"
+    module="${dir%%_${LVM_SUFFIX}}"
+    target="${module##${LVM_SNAPSHOT}/}"
+    RSYNC_LOG="${LOG_DIR}/rsync-${target}.log"
+    [ ${DEBUG} ] && echo "Backup source ${dir}"
+    [ ${DEBUG} ] && echo "Backup target ${target}"
+    rsync ${RSYNC_OPTIONS} ${dir}/ ${RSYNC_HOST}::${target} 2>&1 | tee ${RSYNC_LOG}
+    exitvalue=${PIPESTATUS[0]}
+    if [ $exitvalue != 0 ]; then
+        /bin/logger -t rsync "ALERT exited abnormally with [$exitvalue]"
+        /bin/logger -t rsync "See ${RSYNC_LOG} for detail"
+    fi
+  done;
+}
+
+for host in ${XEN_HOSTS}; do
+  create_snapshots ${host}
+  backup ${host}
+  remove_snapshots ${host}
+done;
+
+exit 0
+

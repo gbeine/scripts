@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# ldapbackup - Backup für OpenLDAP Datenbank
+#
+# (c) 2011 Gerrit Beine
+#
+umask 022
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+if [ -f /etc/sysconfig/ldapbackup ] ; then
+  . /etc/sysconfig/ldapbackup
+fi
+
+DATE=`date +%Y%m%d`
+
+CLEAN_DATE=`date --date="${LDAP_KEEP_DAYS} days ago" +%Y%m%d`
+CLEAN_FIND_OPTIONS="-type f -not -newerct ${CLEAN_DATE} -exec rm {} ;"
+
+COMPRESS_FIND_OPTIONS="-type f -exec gzip --force --best --rsyncable {} ;"
+
+
+[ $DEBUG ] && echo "slapcat > ${LDAP_BACKUP_DIR}/ldap-${DATE}.ldif"
+slapcat > "${LDAP_BACKUP_DIR}/ldap-${DATE}.ldif"
+
+[ $DEBUG ] && echo "find ${LDAP_BACKUP_DIR} -name 'ldap*' ${CLEAN_FIND_OPTIONS}"
+find "${LDAP_BACKUP_DIR}" -name "ldap*" ${CLEAN_FIND_OPTIONS}
+
+if [ -n "$LDAP_COMPRESS_BACKUP" -a "$LDAP_COMPRESS_BACKUP" = "yes" ]; then
+	[ $DEBUG ] && echo "find '${LDAP_BACKUP_DIR}'  -name *.ldif ${COMPRESS_FIND_OPTIONS}"
+	find "${LDAP_BACKUP_DIR}" -name "*.ldif" ${COMPRESS_FIND_OPTIONS}
+fi
+
+exit 0

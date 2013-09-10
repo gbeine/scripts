@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# mysqlbackup - cron.daily script zum MySQL Backup
+#
+# (c) 2002-2011, Gerrit Beine, <gerrit@beine-computer.de>
+#
+
+umask 022
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+if [ -f /etc/sysconfig/mysqlbackup ] ; then
+  . /etc/sysconfig/mysqlbackup
+fi
+
+DATE=`date +%Y%m%d`
+
+MYSQL_DUMP_OPTIONS="--host=${MYSQL_HOST} --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD} --flush-logs"
+MYSQL_HOTCOPY_OPTIONS="--user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD} --allowold --keepold"
+
+CLEAN_DATE=`date --date="${MYSQL_KEEP_DAYS} days ago" +%Y%m%d`
+CLEAN_FIND_OPTIONS="-type f -not -newerct ${CLEAN_DATE} -exec rm {} ;"
+
+COMPRESS_FIND_OPTIONS="-type f -exec gzip --force --best --rsyncable {} ;"
+
+# the sed strips all beginning |, all ending | and all lines +--...--+; the awk skips the first line which is usually "Databases"
+for db in `mysqlshow --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD} | sed -e s/^\|//g -e s/\|$//g -e /^+.*+$/d | awk 'NR<2{next};1'`; do
+	if [ -n "$MYSQL_USE_REPLICATION" -a "$MYSQL_USE_REPLICATION" = "yes" ]; then
+		[ $DEBUG ] && echo "mysqladmin stop --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD}"
+		mysqladmin stop --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD}
+	fi
+
+	if [ -n "$USE_MYSQL_HOTCOPY" -a "$USE_MYSQL_HOTCOPY" = "yes" -a -x /usr/bin/mysqlhotcopy ]; then
+		[ $DEBUG ] && echo "mysqlhotcopy ${db} ${MYSQL_BACKUP_DIR} ${MYSQL_HOTCOPY_OPTIONS}"
+		mysqlhotcopy "${db}" "${MYSQL_BACKUP_DIR}" ${MYSQL_HOTCOPY_OPTIONS}
+        elif [ -x /usr/bin/mysqldump ]; then
+		[ $DEBUG ] && echo "mysqldump ${MYSQL_DUMP_OPTIONS} ${db} > ${MYSQL_BACKUP_DIR}/${db}-${DATE}.sql"
+		mysqldump ${MYSQL_DUMP_OPTIONS} "${db}" > "${MYSQL_BACKUP_DIR}/${db}-${DATE}.sql"
+		[ $DEBUG ] && echo "find ${MYSQL_BACKUP_DIR} -name ${db}* ${CLEAN_FIND_OPTIONS}"
+		find "${MYSQL_BACKUP_DIR}" -name "${db}*" ${CLEAN_FIND_OPTIONS}
+	fi
+
+	if [ -n "$MYSQL_USE_REPLICATION" -a "$MYSQL_USE_REPLICATION" = "yes" ]; then
+		[ $DEBUG ] && echo "mysqladmin start --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD}"
+		mysqladmin start --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD}
+	fi
+done
+
+if [ -n "$MYSQL_COMPRESS_BACKUP" -a "$MYSQL_COMPRESS_BACKUP" = "yes" ]; then
+	[ $DEBUG ] && echo "find ${MYSQL_BACKUP_DIR} -name '*.sql' ${COMPRESS_FIND_OPTIONS}"
+	find "${MYSQL_BACKUP_DIR}" -name "*.sql" ${COMPRESS_FIND_OPTIONS}
+fi
+
+exit 0

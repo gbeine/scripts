@@ -1,0 +1,67 @@
+DEBUG=1
+
+## Type:        string
+## Default:     "localhost"
+#
+# The hostname of the MySQL server
+#
+MYSQL_HOST=localhost
+
+## Type:        string
+## Default:     "backup"
+#
+# The user to use for backup
+# This user needs at least the privileges Select_priv, Reload_priv, Lock_tables_priv
+#
+MYSQL_BACKUP_USER=backup
+
+## Type:        string
+## Default:     ""
+#
+# The password for the backup user
+#
+MYSQL_BACKUP_PASSWORD=pwd4backup
+
+## Type:        string
+## Default:     "/var/backup/mysql"
+#
+# The directory where to save the MySQL backup files
+#
+MYSQL_BACKUP_DIR=/var/backup/mysql
+
+## Type:        string
+## Default:     ""
+#
+# The directory where the MySQL databases are located
+#
+MYSQL_DATA_DIR=/var/lib/mysql
+
+## Type:        integer
+## Default:     14
+#
+# The number of days to keep MySQL backup files
+#
+MYSQL_KEEP_DAYS=14
+
+## Type:        yesno
+## Default:     yes
+#
+# Compress MySQL backup files
+#
+MYSQL_COMPRESS_BACKUP=yes
+
+## Type:        yesno
+## Default:     no
+#
+# Use the MySQL hotcopy tool for backup
+#
+USE_MYSQL_HOTCOPY=no
+
+## Type:        yesno
+## Default:     no
+#
+# If this server is a replication server, set to yes to stop replication before
+# starting backup and restart replication after finishing backup.
+# This will increase speed during backup.
+#
+USE_MYSQL_REPLICATION=no

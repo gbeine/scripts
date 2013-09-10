@@ -1,0 +1,29 @@
+DEBUG=1
+
+## Type:        string
+## Default:     "/var/backup/svn"
+#
+# The directory where to save the Subversion backup files
+#
+SVN_BACKUP_DIR=/var/backup/svn
+
+## Type:        string
+## Default:     "/srv/svn"
+#
+# The directory where the Subversion repositories are located
+#
+SVN_DATA_DIR=/srv/svn
+
+## Type:        integer
+## Default:     14
+#
+# The number of days to keep Subversion backup files
+#
+SVN_KEEP_DAYS=14
+
+## Type:        yesno
+## Default:     yes
+#
+# Compress Subversion backup files
+#
+SVN_COMPRESS_BACKUP=yes
