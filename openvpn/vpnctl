@@ -1,0 +1,15 @@
+#!/bin/sh
+
+case "$1" in
+	start)
+		/root/bin/bridge-start
+		rcopenvpn start
+		;;
+	stop)
+		rcopenvpn stop
+		/root/bin/bridge-stop
+		;;
+	*)
+		echo "Usage vpnctl (start|stop)"
+		;;
+esac

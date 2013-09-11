@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#################################
+# Set up Ethernet bridge on Linux
+# Requires: bridge-utils
+#################################
+
+# Define Bridge Interface
+br="br0"
+
+# Define list of TAP interfaces to be bridged,
+# for example tap="tap0 tap1 tap2".
+tap="tap0"
+
+# Define physical ethernet interface to be bridged
+# with TAP interface(s) above.
+eth="eth0"
+eth_ip="192.168.0.100"
+eth_netmask="255.255.255.0"
+eth_broadcast="192.168.0.255"
+eth_gw="192.168.0.254"
+
+for t in $tap; do
+    echo "Creating tunnel device $t"
+    openvpn --mktun --dev $t
+done
+
+echo "Adding bridge $br with interface $eth"
+brctl addbr $br
+brctl addif $br $eth
+
+for t in $tap; do
+    echo "Adding interface $t to bridge $br"
+    brctl addif $br $t
+done
+
+for t in $tap; do
+    echo "Setting interface $t to promisc mode"
+    ifconfig $t 0.0.0.0 promisc up
+done
+
+echo "Setting interface $eth to promisc mode"
+ifconfig $eth 0.0.0.0 promisc up
+
+echo "Moving address $eth_ip ($eth_netmask) to $br"
+ifconfig $br $eth_ip netmask $eth_netmask broadcast $eth_broadcast
+
+echo "Setting default gateway to $eth_gw"
+route add default gw $eth_gw
