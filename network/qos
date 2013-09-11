@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# fwqos - Reguliert Bandbreite fuer ein- und ausgehenden Datentraffic auf Routern
+#
+# Jan 2001, Gerrit Beine, <gerrit@beine-computer.de>
+#
+
+INT_DEV=eth0			# Netzwerkinterface fuer das interne Netz
+INT_BW=100MBit			# Bandbreite dieses Interfaces
+INT_LIMIT=768KBit		# Maximaldurchsatz fuer eingehenden Verkehr
+INT_NET=192.168.0.0/24		# Zielnetz fuer eingehenden Verkehr
+
+EXT_DEV=eth1			# Netzwerkinterface fuer das externe Netz
+EXT_BW=100MBit			# Bandbreite dieses Interfaces
+EXT_LIMIT=128KBit		# Maximaldurchsatz fuer aushehenden Verkehr
+EXT_NET=194.122.207.243/32	# Quelle fuer ausgehenden Verkehr
+
+echo "QoS Einstellungen werden initialisiert"
+
+echo "Regeln fuer eingehenden Verkehr werden erstellt"
+
+tc qdisc add dev $INT_DEV root handle 1:0 cbq bandwidth $INT_BW avpkt 100 cell 8
+tc class add dev $INT_DEV parent 1:0 classid 1:1 cbq bandwidth $INT_BW rate $INT_LIMIT allot 1514 cell 8 maxburst 20 avpkt 1000 bounded
+tc filter add dev $INT_DEV parent 1:0 protocol ip prio 8 u32 match ip dst $INT_NET flowid 1:1
+
+echo "Regeln fuer ausgehenden Verkehr werden erstellt"
+
+tc qdisc add dev $EXT_DEV root handle 2: cbq bandwidth $EXT_BW avpkt 100 cell 8
+tc class add dev $EXT_DEV parent 2:0 classid 2:1 cbq bandwidth $EXT_BW rate $EXT_LIMIT allot 1514 cell 8 maxburst 20 avpkt 1000 bounded
+tc filter add dev $EXT_DEV parent 2:0 protocol ip prio 8 u32 match ip src $EXT_NET flowid 2:1

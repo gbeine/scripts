@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# masquerading - Startet ein simples Masquerading
+#
+# Jan 2001, Gerrit Beine, <gerrit@beine-computer.de>
+#
+
+EXT_DEV=eth0			# maskierndes Interface
+INT_NET=192.168.0.0/24		# internes Netz
+
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+if [ -z "`lsmod | grep iptable_nat`" ]; then
+  modprobe iptable_nat
+fi
+
+if [ -z "`$PROG -L -t nat | grep MASQUERADE`" ]; then
+  iptables -t nat -A POSTROUTING -o $EXT_DEV -s $INT_NET -j MASQUERADE
+fi
