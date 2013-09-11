@@ -1,0 +1,23 @@
+#!/usr/local/bin/bash
+#
+# recursive webalizer
+# (c) 2003 Gerrit Beine, <gerrit@beine-computer.de>
+#
+
+LOGFILES=access.log.1.gz
+WEBALIZER=/usr/local/bin/de-webalizer
+
+for USER in $(ls /home); do
+  for DIR in $(ls /home/$USER); do
+    if test -d /home/$USER/$DIR/httplog; then
+      DSTDIR=/home/$USER/$DIR/htmldoc/webalizer
+      for FILE in $(ls -r /home/$USER/$DIR/httplog/$LOGFILES); do
+        if (test -d $DSTDIR); then
+          $WEBALIZER -p -o $DSTDIR -n $DIR $FILE;
+          chown -R $USER:www $DSTDIR
+        fi
+      done
+    fi
+  done
+done
+
