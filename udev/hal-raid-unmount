@@ -1,0 +1,18 @@
+#!/bin/sh
+
+LOGGER=/bin/logger
+LOGGEROPTIONS=-"p local0.notice"
+
+function log()
+{
+	message=$1
+	${LOGGER} ${LOGGEROPTIONS} ${message}
+}
+
+log "Unmount ${HAL_PROP_VOLUME_MOUNT_POINT}"
+
+/bin/umount ${HAL_PROP_VOLUME_MOUNT_POINT}
+
+log "Shutdown ${HAL_PROP_BLOCK_DEVICE}"
+
+/sbin/mdadm -S ${HAL_PROP_BLOCK_DEVICE}

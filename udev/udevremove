@@ -1,0 +1,65 @@
+#!/bin/sh
+
+CAT=/bin/cat
+DEVICEDB=/tmp/device.backup
+GREP=/usr/bin/grep
+LOGGER=/bin/logger
+LOGGEROPTIONS="-p local0.notice"
+MAIL=/usr/bin/mail
+MAILTO=info@example.org
+MEDIAPATH=/media
+MOUNT=/bin/mount
+SUBJECT="Backup media removed"
+TMP=/tmp
+UMOUNT=/bin/umount
+WC=/usr/bin/wc
+
+ACTION=$1
+
+function remove()
+{
+	state=0
+	device="/dev/nodevice"
+	if [ -f ${DEVICEDB} ]; then
+		log "${CAT} ${DEVICEDB} | ${GREP} ${PHYSDEVPATH} | cut -d' ' -f1"
+		device=`${CAT} ${DEVICEDB} | ${GREP} ${PHYSDEVPATH} | cut -d' ' -f1`
+		log "${MOUNT} | ${GREP} ${device} | ${WC} -l"
+		state=`${MOUNT} | ${GREP} ${device} | ${WC} -l`
+	fi
+	if [ 1 -eq ${state} ]; then
+	        log "Umounting ${device}"
+		${UMOUNT} -f ${device} || true
+		state=`${MOUNT} | ${GREP} ${device} | ${WC} -l`
+		if [ 1 -eq ${state} ]; then
+			alert "Problem umounting backup disk ${device}"
+		else
+			alert "Disk ${device} umounted and removed"
+		fi
+	else
+		alert "Disk removed without problems"
+	fi
+        log "Removed ${device} as ${PHYSDEVPATH}"
+}
+
+function log()
+{
+        message=$1
+        ${LOGGER} ${LOGGEROPTIONS} ${message}
+}
+
+function alert()
+{
+	message=$1
+	echo ${message} | ${MAIL} -s ${SUBJECT} ${MAILTO}
+}
+
+case "${ACTION}" in
+        "remove")
+		remove
+        ;;
+        *)
+                ;;
+esac
+
+exit 0
+

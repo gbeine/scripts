@@ -1,0 +1,64 @@
+#!/bin/sh
+
+CAT=/bin/cat
+GREP=/usr/bin/grep
+LOGGER=/bin/logger
+LOGGEROPTIONS="-p local0.notice"
+MAIL=/usr/bin/mail
+MAILTO=info@example.org
+MEDIAPATH=/media
+MOUNT=/bin/mount
+SUBJECT="Backup media attached"
+TMP=/tmp
+WC=/usr/bin/wc
+
+ACTION=$1
+MOUNTPOINT=$2
+
+DEVICEDB=${TMP}/device.${MOUNTPOINT}
+
+function add()
+{
+	state=0
+	device=""
+	log "Added ${DEVNAME} as ${PHYSDEVPATH}"
+	if [ -f ${DEVICEDB} ]; then
+		device=`${CAT} ${DEVICEDB}`
+		state=`${MOUNT} | ${GREP} ${device} | ${WC} -l`
+	fi
+	if [ 0 -eq ${state} ]; then
+		echo ${DEVNAME} ${PHYSDEVPATH} > ${DEVICEDB}
+		[ -b ${DEVNAME} ] && ${MOUNT} ${DEVNAME} ${MEDIAPATH}/${MOUNTPOINT}
+		state=`${MOUNT} | ${GREP} ${DEVNAME} | ${GREP} rw | ${WC} -l`
+		if [ 0 -eq ${state} ]; then
+			alert "Problem mounting backup disk ${DEVNAME} on ${MEDIAPATH}/${MOUNTPOINT}"
+		else
+			alert "Disk ${DEVNAME} mounted on ${MEDIAPATH}/${MOUNTPOINT}"
+		fi
+	else
+		log "Error: ${device} already mounted on ${MEDIAPATH}/${MOUNTPOINT}"
+	fi
+}
+
+function log()
+{
+	message=$1
+	${LOGGER} ${LOGGEROPTIONS} "${message}"
+}
+
+function alert()
+{
+	message=$1
+	echo ${message} | ${MAIL} -s "${SUBJECT}" ${MAILTO}
+}
+
+case "${ACTION}" in
+	"add")
+		add
+		;;
+	*)
+		;;
+esac
+
+exit 0
+
