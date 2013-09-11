@@ -1,0 +1,118 @@
+#!/bin/bash
+#
+# Copyright 2010 Gerrit Beine <mail@gerritbeine.com>
+#
+
+function message() {
+    local message
+    message=$1
+    echo $message 1>&2
+}
+
+function debug() {
+    local message
+    message=$1
+    [ $debug -gt 0 ] && message "DEBUG -- ${message}"
+}
+
+function exitOnError() {
+    [ -d ${TMPDIR} ] && rm -rf ${TMPDIR}
+    echo "Exiting transaction" 1>&2
+    exit 1
+}
+
+#
+# Debug output
+debug=1
+#
+# Exit on any error
+set -e
+
+# Path to subversion executables
+SVNLOOK=/usr/bin/svnlook
+
+# Path to PMD executable
+PMD=/tmp/pmd-4.2.5/bin/pmd.sh
+PMD_OPTIONS=design
+
+# Path to CheckStyle executable
+CHECKSTYLE=/tmp/checkstyle-5.3/checkstyle.sh
+CHECKSTYLE_OPTIONS="-c /tmp/checkstyle-5.3/sun_checks.xml"
+
+#
+# Files to check as Bash compatible regular expressions
+# See http://tldp.org/LDP/abs/html/regexp.html
+PATTERN=.java$
+
+# Get the repository and transaction
+REPOS="$1"
+debug "Repository: $REPOS"
+TXN="$2"
+debug "Transaction: $TXN"
+
+#
+# The temporary directory to copy files to - taken from tansaction and current pid
+TMPDIR="/tmp/svn-hook-${TXN}-$$"
+debug "Temp directory: ${TMPDIR}"
+
+# List changed files
+# Only added and updated will be returned
+# File names start at the 5th column
+# See http://svnbook.red-bean.com/en/1.5/svn.ref.svnlook.c.changed.html
+__CHANGES=`${SVNLOOK} changed -t ${TXN} ${REPOS} | grep "^[AU]" | cut -c5-`
+debug "Changes: ${__CHANGES}"
+
+#
+# Allow transaction if no file added or no content updated
+[ -n "${__CHANGES}" ] || exit 0
+
+#
+# Exit transaction if creating temporary directory fails
+mkdir -p ${TMPDIR} || exitOnError
+
+# Iterate over all changed artifacts
+# Check only artifacts matching the specified pattern
+for _artifact in ${__CHANGES}; do
+    if [[ "${_artifact}" =~ ${PATTERN} ]]; then
+        debug "Artifact: ${_artifact}"
+        _artdirectory=${_artifact%\/*}
+        if [ -n "${_artdirectory}" ]; then
+            debug "Artifact directory: ${_artdirectory}"
+            mkdir -p ${TMPDIR}/${_artdirectory} || exitOnError
+        fi
+        ${SVNLOOK} cat -t ${TXN} ${REPOS} ${_artifact} > ${TMPDIR}/${_artifact}
+    fi
+done
+
+#
+# Run PMD if defined
+if [ -n "${PMD}" ]; then
+    debug "Running PMD"
+    __PMD=`${PMD} ${TMPDIR} text ${PMD_OPTIONS}`
+    debug "PMD result: ${__PMD}"
+    __RESULT=`echo ${__PMD} | grep "No problems found!" || true`
+    if [ -z "${__RESULT}" ]; then
+        debug "Found errors"
+        message "Found the following PMD errors"
+        message "${__PMD}"
+        exitOnError
+    fi
+fi
+
+#
+# Run CheckStyle if defined
+if [ -n "${CHECKSTYLE}" ]; then
+    debug "Running CheckStyle"
+    __CHECKSTYLE=`${CHECKSTYLE} ${CHECKSTYLE_OPTIONS} -r ${TMPDIR} | grep -v "Starting audit..." | grep -v "Audit done." || true`
+    debug "CheckStyle result: ${__CHECKSTYLE}"
+    if [ -n "${__CHECKSTYLE}" ]; then
+        debug "Found errors"
+        message "Found the following CheckStyle errors"
+        message "${__CHECKSTYLE}"
+        exitOnError
+    fi
+fi
+
+[ -d ${TMPDIR} ] && rm -rf ${TMPDIR}
+
+exit 0
