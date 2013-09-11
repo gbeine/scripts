@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#export VMWARE_USE_SHIPPED_GTK=force
+export GDK_NATIVE_WINDOWS=true
+
+unset http_proxy
+unset HTTP_PROXY
+unset https_proxy
+unset HTTPS_PROXY
+unset no_proxy
+
+bin_dir=`dirname $0`
+vmware_console_dir="${bin_dir}/vmware-console"
+vmware_console="${vmware_console_dir}/vmware-vmrc"
+
+cd ${vmware_console_dir} && ${vmware_console} $@
