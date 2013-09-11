@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# detach - Abmelden und herunterfahren einer SCSI- oder SATA-Festplatte
+#
+# (c) 2012 Gerrit Beine
+#
+
+if [ -z "$1" ]; then
+	echo "Usage: $0 <device>"
+	exit
+fi
+
+device="$1"
+
+if [ ! -b /dev/${device} ]; then
+	echo "Device not found"
+	exit 1
+fi
+
+mounted=`mount |grep ${device}|wc -l`
+
+if [ -n "$mounted" -a  $mounted -gt 0 ]; then
+	echo "Device mounted, cannot be removed"
+	exit 1
+fi
+
+mapped=`dmsetup status|grep ${device}|wc -l`
+
+if [ -n "$mapped" -a  $mapped -gt 0 ]; then
+	echo "Device mapped, cannot be removed"
+	exit 1
+fi
+
+echo 1 > /sys/block/${device}/device/delete
