@@ -1,0 +1,17 @@
+#!/bin/sh
+
+while read row; do
+    cvsinfo="$cvsinfo\n$row"
+done
+
+mails=`awk '/^'${1}'/ { print\$2 }' $2/notification`
+
+if [ -n "$mails" ]; then
+    printf $cvsinfo | mail -s "[$1] CVS Commit Notification" $mails
+fi
+
+urls=`awk '/^'${1}'/ { print $2 }' $2/commiturls`
+
+for url in $urls; do
+    lynx --dump $url
+done
