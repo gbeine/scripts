@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # ldapbackup - Backup für OpenLDAP Datenbank
 #

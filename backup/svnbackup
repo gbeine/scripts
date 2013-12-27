@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # svnbackup - Backup für Subversion Repositories
 #

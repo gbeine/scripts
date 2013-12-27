@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # mysqlbackup - cron.daily script zum MySQL Backup
 #
