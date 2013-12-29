@@ -1,0 +1,44 @@
+!/bin/sh
+
+debug=0
+domaindb=/var/qmail/users/assign
+spamdb=/var/spool/spamd/.spamassassin
+cut=/usr/bin/cut
+head=/usr/bin/head
+maildirmake=/usr/local/bin/maildirmake
+rm=/bin/rm
+salearn=/usr/local/bin/sa-learn
+salearnoptions="--spam --dbpath ${spamdb}"
+
+domains=`${cut} -d':' -f5 ${domaindb}`
+
+for domain in ${domains}; do
+    [ -d ${domain} ] || continue
+    [ ${debug} ] && echo ${domain}
+    for account in `ls ${domain}`; do
+        [ -d ${domain}/${account} ] || continue
+        [ -d ${domain}/${account}/Maildir ] || continue
+        [ -d ${domain}/${account}/Maildir/.Spam ] || continue
+        [ ${debug} ] && echo ${account}@${domain}
+        if [ -r ${domain}/${account}/Maildir/maildirsize ]; then
+            quota=`${head} -n 1 ${domain}/${account}/Maildir/maildirsize || true`
+        fi
+        if [ 0 -lt `ls ${domain}/${account}/Maildir/.Spam/cur/ | wc -l` ]; then
+                [ ${debug} ] && echo ${salearn} ${salearnoptions} ${domain}/${accounT}/Maildir/.Spam/cur/*
+                ${salearn} ${salearnoptions} ${domain}/${account}/Maildir/.Spam/cur/*
+                [ ${debug} ] && echo ${rm} ${domain}/${account}/Maildir/.Spam/cur/*
+                ${rm} ${domain}/${account}/Maildir/.Spam/cur/* || true
+        fi
+        if [ 0 -lt `ls ${domain}/${account}/Maildir/.Spam/new/ | wc -l` ]; then
+                [ ${debug} ] && echo ${salearn} ${salearnoptions} ${domain}/${account}/Maildir/.Spam/new/*
+                ${salearn} ${salearnoptions} ${domain}/${account}/Maildir/.Spam/new/*
+                [ ${debug} ] && echo ${rm} ${domain}/${account}/Maildir/.Spam/new/*
+                ${rm} ${domain}/${account}/Maildir/.Spam/new/* || true
+        fi
+        if [ -n "${quota}" ]; then
+            [ ${debug} ] && echo ${maildirmake} -q ${quota} ${domain}/${account}/Maildir
+            ${maildirmake} -q ${quota} ${domain}/${account}/Maildir
+        fi
+    done
+done
+

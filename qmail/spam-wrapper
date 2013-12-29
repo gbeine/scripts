@@ -1,0 +1,44 @@
+#!/usr/bin/perl -w
+
+use strict;
+use constant MAILDIR => "./Maildir";
+use constant JUNKDIR => "./Maildir/.Junk";
+use constant DELIVERQUOTA => "/usr/local/bin/deliverquota";
+use constant MAILDIRMAKE => "/var/qmail/bin/maildirmake";
+
+use Mail::SpamAssassin::Client;
+
+my $mail;
+my $spamc = new Mail::SpamAssassin::Client({ 'socketpath' => "/var/run/spamd/spamd.sock" });
+
+while (my $line = <STDIN>) {
+    $mail .= $line;
+}
+
+unless ($spamc->ping()) {
+    open(OUT, "| ".DELIVERQUOTA." ".MAILDIR." > /dev/null 2>&1");
+    print OUT $mail;
+    close(OUT);
+    exit(0);
+}
+
+my $result = $spamc->process($mail);
+
+if ($result->{'isspam'} eq 'True') {
+    unless ( -d JUNKDIR ) {
+        my @maildirmake = ( MAILDIRMAKE, JUNKDIR );
+        system(@maildirmake);
+    }
+    open(OUT, "| ".DELIVERQUOTA." ".JUNKDIR." > /dev/null 2>&1");
+    print OUT $result->{'message'};
+    close(OUT);
+    exit(0);
+} else {
+    if ( 0 < length($result->{'message'}) ) {
+        open(OUT, "| ".DELIVERQUOTA." ".MAILDIR." > /dev/null 2>&1");
+        print OUT $result->{'message'};
+        close(OUT);
+    }
+    exit(0);
+}
+
