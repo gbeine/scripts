@@ -1,0 +1,82 @@
+## Type:        string
+## Default:     ""
+DEBUG=1
+
+## Type:        yesno
+## Default:     no
+#
+RUN_SPAMLEARN=yes
+
+## Type:        string
+## Default:     "vmail"
+#
+# The user id of the virtual mail store
+#
+VMAIL_USER=vmail
+
+## Type:        string
+## Default:     "/srv/vmail"
+#
+# The directory for the virtual mail store
+#
+VMAIL_DIR=/srv/vmail
+
+## Type:        string
+## Default:     "domains"
+#
+# The directory where the domains are stored
+#
+VMAIL_DOMAIN_DIR=domains
+
+## Type:        string
+## Default:     "Maildir"
+#
+# The directory containing the INBOX location
+#
+VMAIL_INBOX_DIR=Maildir
+
+## Type:        string
+## Default:     ".Spam"
+#
+# The directory containing the spam folder location
+#
+VMAIL_SPAM_DIR=.INBOX.Spam
+
+## Type:        string
+## Default:     ".Ham"
+#
+# The directory containing the ham folder location
+#
+VMAIL_HAM_DIR=.INBOX.Ham
+
+## Type:        string
+## Default:     "spamd"
+#
+# The user id of the SpamAssassin database owner
+#
+SA_LEARN_USER=debian-spamd
+
+## Type:        yesno
+## Default:     no
+#
+SA_LEARN_SPAM=yes
+
+## Type:        yesno
+## Default:     no
+#
+SA_LEARN_HAM=yes
+
+## Type:        string
+## Default:     
+#
+# Path to SpamAssassin's  database
+#
+SA_DATABASE="/var/lib/spamassassin/.spamassassin"
+
+## Type:        string
+## Default:     
+#
+# Options for SpamAssassin's sa-learn command
+#
+SA_LEARN_OPTIONS="--dbpath $SA_DATABASE"
+

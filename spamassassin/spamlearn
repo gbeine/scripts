@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# spamlearn - Spam learning for SpamAssassin/Courier/Dovecot
+#
+# (c) 2006-2013, Gerrit Beine, <gerrit@beine-computer.de>
+#
+umask 022
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+if [ -f /etc/sysconfig/spamlearn ] ; then
+  . /etc/sysconfig/spamlearn
+fi
+
+if [[ "$RUN_SPAMLEARN" != [yY][eE][sS] ]]; then
+  [ $DEBUG ] && echo "Not running SpamAssassin learning script, it's disabled"
+  exit 0
+fi
+
+for domain in `find "$VMAIL_DIR/$VMAIL_DOMAIN_DIR" -maxdepth 1 -mindepth 1 -type d`; do
+  [ $DEBUG ] && echo "Found domain: $domain"
+  for account in `find "$domain" -maxdepth 1 -mindepth 1 -type d`; do
+    [ $DEBUG ] && echo "Found account: $account"
+
+    inbox_dir="$account/$VMAIL_INBOX_DIR"
+    spam_dir="$inbox_dir/$VMAIL_SPAM_DIR"
+    ham_dir="$inbox_dir/$VMAIL_HAM_DIR"
+
+    if [ ! -d "$inbox_dir" ]; then
+      [ $DEBUG ] && echo "No $VMAIL_INBOX_DIR found for $account"
+      continue
+    fi
+
+    if [[ "$SA_LEARN_SPAM" == [yY][eE][sS] && -d "$spam_dir" ]]; then
+      [ $DEBUG ] && echo "Learning spam for $account"
+      find $spam_dir/cur -type f -exec sa-learn --spam --no-sync $SA_LEARN_OPTIONS {} \; -delete
+      find $spam_dir/new -type f -exec sa-learn --spam --no-sync $SA_LEARN_OPTIONS {} \; -delete
+    fi
+
+    if [[ "$SA_LEARN_HAM" == [yY][eE][sS] && -d "$ham_dir" ]]; then
+      [ $DEBUG ] && echo "Learning ham for $account"
+      find $ham_dir/cur -type f -exec sa-learn --ham --no-sync $SA_LEARN_OPTIONS {} \; -exec mv {} "$inbox_dir/cur" \;
+      find $ham_dir/new -type f -exec sa-learn --ham --no-sync $SA_LEARN_OPTIONS {} \; -exec mv {} "$inbox_dir/new" \;
+    fi
+ 
+  done
+done
+
+[ $DEBUG ] && echo "Synchronizing SpamAssassin database"
+chown -R $SA_LEARN_USER:$SA_LEARN_USER $SA_DATABASE
+su $SA_LEARN_USER -c "sa-learn --sync $SA_LEARN_OPTIONS"
+
+exit 0
+
