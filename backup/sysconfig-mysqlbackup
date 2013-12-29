@@ -1,4 +1,11 @@
-DEBUG=1
+## Type:        string
+## Default:     ""
+DEBUG=0
+
+## Type:        yesno
+## Default:     no
+#
+RUN_MYSQLBACKUP=yes
 
 ## Type:        string
 ## Default:     "localhost"
@@ -11,7 +18,6 @@ MYSQL_HOST=localhost
 ## Default:     "backup"
 #
 # The user to use for backup
-# This user needs at least the privileges Select_priv, Reload_priv, Lock_tables_priv
 #
 MYSQL_BACKUP_USER=backup
 
@@ -50,6 +56,13 @@ MYSQL_KEEP_DAYS=14
 #
 MYSQL_COMPRESS_BACKUP=yes
 
+## Type:        string
+## Default:     information_schema,performance_schema
+#
+# Comma separated list of databases excluded from backup
+#
+MYSQL_IGNORE_SCHEMA="information_schema,performance_schema"
+
 ## Type:        yesno
 ## Default:     no
 #
@@ -65,3 +78,4 @@ USE_MYSQL_HOTCOPY=no
 # This will increase speed during backup.
 #
 USE_MYSQL_REPLICATION=no
+

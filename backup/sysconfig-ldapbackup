@@ -1,4 +1,6 @@
-DEBUG=1
+## Type:        string
+## Default:     ""
+DEBUG=0
 
 ## Type:        string
 ## Default:     "/var/backup/ldap"
@@ -20,3 +22,9 @@ LDAP_KEEP_DAYS=14
 # Compress OpenLDAP backup files
 #
 LDAP_COMPRESS_BACKUP=yes
+
+## Type:        yesno
+## Default:     no
+#
+RUN_LDAPBACKUP=yes
+
