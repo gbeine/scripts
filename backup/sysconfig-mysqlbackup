@@ -18,6 +18,8 @@ MYSQL_HOST=localhost
 ## Default:     "backup"
 #
 # The user to use for backup
+# This user requires the following privileges:
+# SELECT, RELOAD, SHOW VIEW, EVENT, LOCK TABLES
 #
 MYSQL_BACKUP_USER=backup
 
