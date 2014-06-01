@@ -11,7 +11,7 @@ for %%i in (wxp w2k3 w2k3-x64) do (
   )
 )
 
-for %%i in (w60 w60-x64 w61 w61-x64 w62 w62-x64) do (
+for %%i in (w60 w60-x64 w61 w61-x64 w62 w62-x64 w63 w63-x64) do (
   echo Downloading updates for %%i glb...
   call DownloadUpdates.cmd %%i glb /includedotnet /includemsse /includewddefs /nocleanup /verify
 )
@@ -35,7 +35,7 @@ for %%i in (wxp w2k3 w2k3-x64) do (
   )
 )
 
-for %%i in (w60 w60-x64 w61 w61-x64 w62 w62-x64) do (
+for %%i in (w60 w60-x64 w61 w61-x64 w62 w62-x64 w63 w63-x64) do (
   call CreateISOImage.cmd %%i /includedotnet /includemsse /includewddefs
 )
 
