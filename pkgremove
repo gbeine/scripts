@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#
+# OS X package removing
+#
+# (c) 2014 Gerrit Beine <gerrit.beine@gmx.de>
+#
+# See
+# https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man1/pkgutil.1.html
+#
+
+pkg=$1
+
+# check if packages is existing
+pkgutil --pkg-info $pkg >/dev/null
+
+if [[ $? == 1 ]]; then
+  echo "Package $pkg not installed"
+  exit
+fi
+
+# get files and directories from package
+files=`pkgutil --files --only-files $pkg 2>/dev/null`
+directories=`pkgutil --files --only-dirs $pkg 2>/dev/null | sort -r`
+
+# get the installation location
+prefix=`pkgutil --pkg-info $pkg 2>/dev/null |grep "location:"`
+prefix=${prefix/location: //}
+
+if [[ "$prefix" != "/" ]]; then
+  prefix="$prefix/"
+fi
+
+echo "Package $pkg is installed at $prefix"
+
+# Remove files first
+for file in $files; do
+  file="$prefix$file"
+  echo "Removing file $file"
+  rm "$file" 2>/dev/null || true
+done
+
+# Remove directories
+for dir in $directories; do
+  dir="$prefix$dir"
+  echo "Removing directory $dir"
+  rmdir "$dir" || true
+done
+
+# Forget about the package
+pkgutil --forget $pkg
+
