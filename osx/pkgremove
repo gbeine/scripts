@@ -20,8 +20,8 @@ if [[ $? == 1 ]]; then
 fi
 
 # get files and directories from package
-files=`pkgutil --files --only-files $pkg 2>/dev/null`
-directories=`pkgutil --files --only-dirs $pkg 2>/dev/null | sort -r`
+files=`pkgutil --only-files  --files $pkg 2>/dev/null`
+directories=`pkgutil -only-dirs --files $pkg 2>/dev/null | sort -r`
 
 # get the installation location
 prefix=`pkgutil --pkg-info $pkg 2>/dev/null |grep "location:"`

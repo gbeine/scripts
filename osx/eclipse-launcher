@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# Renames an Eclipse.app launcher for MacOS X
+#
+# (c) 2014 Gerrit Beine <gerrit.beine@gmx.de>
+#
+
+eclipse_dir=$1
+eclipse_name=$2
+
+eclipse_oname="Eclipse"
+eclipse_nname="Eclipse $eclipse_name"
+eclipse_oapp="$eclipse_oname.app"
+eclipse_napp="$eclipse_nname.app"
+
+eclipse_plist="$eclipse_dir/$eclipse_napp/Contents/Info.plist"
+eclipse_executable="$eclipse_dir/$eclipse_napp/Contents/MacOS/eclipse"
+
+echo "Renaming $eclipse_oapp to $eclipse_napp"
+mv "$eclipse_dir/$eclipse_oapp" "$eclipse_dir/$eclipse_napp"
+
+echo "Replacing $eclipse_oname with $eclipse_nname"
+sed -i -e "s#<string>Eclipse</string>#<string>$eclipse_nname#g" "$eclipse_plist"
+
+echo "Relinking eclipse executable"
+rm $eclipse_dir/eclipse
+ln -s $eclipse_executable $eclipse_dir/eclipse
