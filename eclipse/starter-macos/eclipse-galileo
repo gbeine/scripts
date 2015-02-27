@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Eclipse startup script
+# JPackage Project <http://www.jpackage.org/>
+# $Id$
+
+ECLIPSE_OPTS=""
+VM_OPTS=""
+
+# Source system prefs
+if [ -r /etc/eclipse.conf ] ; then
+  . /etc/eclipse.conf
+fi
+
+# Source user prefs
+if [ -r $HOME/.eclipserc ] ; then
+  . $HOME/.eclipserc
+fi
+
+# Find our JVM.
+if [ ! -x "$JAVACMD" -a -r /usr/share/java-utils/java-functions ]; then
+  . /usr/share/java-utils/java-functions
+  set_javacmd
+fi
+
+# Set JVM if -vm wasn't given.
+if ! echo $@ | grep '\-vm ' >/dev/null 2>&1 && [ -n "$JAVACMD" ]; then
+  ECLIPSE_OPTS="$ECLIPSE_OPTS -vm $JAVACMD"
+fi
+
+# Set JVM args if -vmargs wasn't given.  This needs to be the last option.
+if ! echo $@ | grep '\-vmargs ' >/dev/null 2>&1 && [ -n "$VM_ARGS" ]; then
+  VM_OPTS="-vmargs $VM_ARGS"
+fi
+
+if [ -w $USER_DIR/.metadata/.config/platform.cfg ]; then
+  perl -p -i.bak -e 's|^site\.[0-9]*\.list\.[0-9]*=.*\n||g;' $USER_DIR/.metadata/.config/platform.cfg
+fi
+
+/Application/eclipse-galileo/eclipse $ECLIPSE_OPTS $@ $VM_OPTS
