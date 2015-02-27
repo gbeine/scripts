@@ -1,0 +1,9 @@
+#!/bin/bash
+
+calibre="/Applications/calibre.app/Contents/MacOS"
+commands="calibre calibre-customize calibre-debug calibre-server calibre-smtp calibredb ebook-convert ebook-device ebook-edit ebook-meta ebook-polish ebook-viewer fetch-ebook-metadata lrf2lrs lrfviewer lrs2lrf markdown-calibre web2disk"
+
+for cmd in $commands; do
+  echo $cmd
+  ln -s "${calibre}/${cmd}" /usr/local/bin
+done
