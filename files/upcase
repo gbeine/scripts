@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+
+#
+# downcase - ändert Dateinamen in Kleinbuchstaben
+#
+# Mar 2004, Gerrit Beine, <gerrit@beine-computer.de>
+#
+
+use strict;
+
+sub downcase ($)
+{
+  my $file = shift;
+
+  -e $file || return 0;
+
+  if (-d $file)
+  {
+    opendir(DIR, $file);
+    chdir($file);
+
+    foreach my $entry (readdir(DIR))
+    {
+      next if $entry eq ".";
+      next if $entry eq "..";
+      downcase($entry);
+    }
+    chdir("..");
+    closedir(DIR);
+  }
+  rename($file,uc($file));
+}
+
+downcase($ARGV[0]);
