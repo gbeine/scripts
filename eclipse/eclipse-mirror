@@ -11,14 +11,14 @@
 #
 
 # Specify path to Eclipse executable
-eclipse="/Users/gbeine/Projekte/Eclipse/juno-minimal/eclipse"
+eclipse="/opt/eclipse/eclipse"
 
 # Mirror repository metadata
 function mirror_metadata()
 {
     local source=$1
     local target=$2
-    run_mirror ${source} ${target} "org.eclipse.equinox.p2.metadata.repository.mirrorApplication"
+    run_p2 ${source} ${target} "org.eclipse.equinox.p2.metadata.repository.mirrorApplication"
 }
 
 # Mirror repository content
@@ -26,11 +26,11 @@ function mirror_artifacts()
 {
     local source=$1
     local target=$2
-    run_mirror ${source} ${target} "org.eclipse.equinox.p2.artifact.repository.mirrorApplication"
+    run_p2 ${source} ${target} "org.eclipse.equinox.p2.artifact.repository.mirrorApplication"
 }
 
 # Execute Eclipse mirror
-function run_mirror()
+function run_p2()
 {
     local source=$1
     local target=$2
@@ -51,21 +51,48 @@ function run_mirror()
     echo
 }
 
+function run_mirror()
+{
+    local source=$1
+    local target=$2
+    local application=org.eclipse.update.core.standaloneUpdate
+    echo
+    echo
+    echo "--------------------------------------------------------------------------------"
+    echo
+    echo "Mirroring ${source}"
+    echo
+    ${eclipse} -nosplash -verbose \
+        -application ${application} \
+        -command mirror \
+        -from ${source} \
+        -to ${target}
+    echo
+    echo "--------------------------------------------------------------------------------"
+    echo
+
+}
+
 target=$1
 
-if [[ -z "${target}" || ! -d ${target} ]]; then
+if [ ! -d ${target} ]; then
     echo "Specificy target directory"
     exit 1
 fi
 
 while read LINE; do
-	if [[ -z ${LINE} || "${LINE}" == "#"* ]]; then
-		continue
-	fi
+    if [[ -z ${LINE} || "${LINE}" == "#"* ]]; then
+        continue
+    fi
+    p2=${LINE%%;*}
+    LINE=${LINE##*;}
     SOURCE=${LINE%%#>>#*}
     TARGET=${LINE##*#>>#}
-    mirror_metadata ${SOURCE} ${target}/${TARGET}
-    mirror_artifacts ${SOURCE} ${target}/${TARGET}
+    if [[ "${p2}" == "mirror" ]]; then
+        run_mirror ${SOURCE} "${target}/${TARGET}"
+    else
+        mirror_metadata ${SOURCE} "${target}/${TARGET}"
+        mirror_artifacts ${SOURCE} "${target}/${TARGET}"
+    fi
 done < eclipse-update-sites.map
-
 

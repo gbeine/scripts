@@ -1,140 +1,187 @@
 # Eclipse Maintenance Update Sites
-http://download.eclipse.org/eclipse/updates/4.3#>>#updates/4.3
-http://download.eclipse.org/eclipse/updates/4.2#>>#updates/4.2
-http://download.eclipse.org/eclipse/updates/3.8#>>#updates/3.8
-http://download.eclipse.org/eclipse/updates/3.7#>>#updates/3.7
-#http://download.eclipse.org/eclipse/updates/3.6#>>#updates/3.6
-#http://download.eclipse.org/eclipse/updates/3.5#>>#updates/3.5
-#http://download.eclipse.org/eclipse/updates/3.4#>>#updates/3.4
+p2;http://download.eclipse.org/eclipse/updates/4.4#>>#updates/4.4
+p2;http://download.eclipse.org/eclipse/updates/4.3#>>#updates/4.3
+p2;http://download.eclipse.org/eclipse/updates/4.2#>>#updates/4.2
+p2;http://download.eclipse.org/eclipse/updates/3.8#>>#updates/3.8
+p2;http://download.eclipse.org/eclipse/updates/3.7#>>#updates/3.7
+p2;http://download.eclipse.org/eclipse/updates/3.6#>>#updates/3.6
+p2;http://download.eclipse.org/eclipse/updates/3.5#>>#updates/3.5
+p2;http://download.eclipse.org/eclipse/updates/3.4#>>#updates/3.4
 
 # Eclipse Release Update Sites
-http://download.eclipse.org/releases/kepler#>>#releases/kepler
-http://download.eclipse.org/releases/juno#>>#releases/juno
-http://download.eclipse.org/releases/indigo#>>#releases/indigo
-#http://download.eclipse.org/releases/helios#>>#releases/helios
-#http://download.eclipse.org/releases/galileo#>>#releases/galileo
-#http://download.eclipse.org/releases/ganymede#>>#releases/ganymede
+p2;http://download.eclipse.org/releases/luna#>>#releases/luna
+p2;http://download.eclipse.org/releases/kepler#>>#releases/kepler
+p2;http://download.eclipse.org/releases/juno#>>#releases/juno
+p2;http://download.eclipse.org/releases/indigo#>>#releases/indigo
+p2;http://download.eclipse.org/releases/helios#>>#releases/helios
+p2;http://download.eclipse.org/releases/galileo#>>#releases/galileo
+p2;http://download.eclipse.org/releases/ganymede#>>#releases/ganymede
 
 # AspectJ Development Tools
-http://download.eclipse.org/tools/ajdt/43/update#>>#tools/ajdt/e4.3
-http://download.eclipse.org/tools/ajdt/42/update#>>#tools/ajdt/e4.2
-http://download.eclipse.org/tools/ajdt/37/update#>>#tools/ajdt/e3.7
-http://download.eclipse.org/tools/ajdt/36/update#>>#tools/ajdt/e3.6
-http://download.eclipse.org/tools/ajdt/35/update#>>#tools/ajdt/e3.5
-# http://archive.eclipse.org/tools/ajdt/34/update#>>#tools/ajdt/e3.4 # Frozen, no longer maintained
-
-# Scala IDE
-http://download.scala-ide.org/sdk/e38/scala210/stable/site#>>#tools/scalaide/2.10/e4.2
-http://download.scala-ide.org/sdk/e38/scala29/stable/site#>>#tools/scalaide/2.9/e4.2
-http://download.scala-ide.org/sdk/e37/scala210/stable/site#>>#tools/scalaide/2.10/e3.7
-http://download.scala-ide.org/sdk/e37/scala29/stable/site#>>#tools/scalaide/2.9/e3.7
-# http://download.scala-ide.org/releases-28/stable/site#>>#tools/scalaide/2.8/e3.7 # Frozen, no longer maintained
-
-# Google Plugin for Eclipse
-http://dl.google.com/eclipse/plugin/4.3#>>#tools/googleplugin/e4.3
-http://dl.google.com/eclipse/plugin/4.2#>>#tools/googleplugin/e4.2
-http://dl.google.com/eclipse/plugin/3.7#>>#tools/googleplugin/e3.7
-http://dl.google.com/eclipse/plugin/3.6#>>#tools/googleplugin/e3.6
-
-# Spring Tool Suite
-http://dist.springsource.com/release/TOOLS/update/e4.3#>>#tools/springtoolsuite/e4.3
-http://dist.springsource.com/release/TOOLS/update/e4.2#>>#tools/springtoolsuite/e4.2
-http://dist.springsource.com/release/TOOLS/update/e3.8#>>#tools/springtoolsuite/e3.8
-http://dist.springsource.com/release/TOOLS/update/e3.7#>>#tools/springtoolsuite/e3.7
-
-# ANTLR IDE
-http://antlrv3ide.sourceforge.net/updates#>>#tools/antlrv3/e3.7
-# http://antlrv3ide.sourceforge.net/updates/3.6#>>#tools/antlrv3/e3.6 # Frozen, no longer maintained
-# http://antlrv3ide.sourceforge.net/updates/2.0.2#>>#tools/antlrv3/e3.5 # Frozen, no longer maintained
-
-# subclipse
-http://subclipse.tigris.org/update_1.10.x#>>#tools/subclipse/1.10.x
-http://subclipse.tigris.org/update_1.8.x#>>#tools/subclipse/1.8.x
-# http://subclipse.tigris.org/update_1.6.x#>>#tools/subclipse/1.6.x # Frozen, no longer maintained
-# http://subclipse.tigris.org/update_1.4.x#>>#tools/subclipse/1.4.x # Frozen, no longer maintained
+p2;http://download.eclipse.org/tools/ajdt/43/update#>>#tools/ajdt/e4.3
+p2;http://download.eclipse.org/tools/ajdt/42/update#>>#tools/ajdt/e4.2
+p2;http://download.eclipse.org/tools/ajdt/37/update#>>#tools/ajdt/e3.7
+p2;http://download.eclipse.org/tools/ajdt/36/update#>>#tools/ajdt/e3.6
+p2;http://download.eclipse.org/tools/ajdt/35/update#>>#tools/ajdt/e3.5
+mirror;http://archive.eclipse.org/tools/ajdt/34/update#>>#tools/ajdt/e3.4
 
 # MoreUnit
-http://moreunit.sourceforge.net/update-site#>>#tools/moreunit/2.x.x
-# http://moreunit.sourceforge.net/org.moreunit.updatesite/#>>#tools/moreunit/1.x.x # Frozen archive
+p2;http://moreunit.sourceforge.net/update-site#>>#tools/moreunit/2.x.x
+mirror;http://moreunit.sourceforge.net/org.moreunit.updatesite/#>>#tools/moreunit/1.x.x
 
 # Eclipse Metrics Plugin
-http://metrics2.sourceforge.net/update#>>#tools/metrics2
-# http://metrics.sourceforge.net/update#>>#tools/metrics # Frozen, no longer maintained
-
-# Plugins by Andrei Loskutov
-http://andrei.gmxhome.de/eclipse#>>#tools/loskutov
+mirror;http://metrics2.sourceforge.net/update#>>#tools/metrics2
+mirror;http://metrics.sourceforge.net/update#>>#tools/metrics
 
 # Plugins by Markus Junginger
-http://www.junginger.biz/eclipse#>>#tools/junginger
+mirror;http://www.junginger.biz/eclipse#>>#tools/junginger
 
 # EclEmma Code Coverage
-http://update.eclemma.org/#>>#tools/eclemma
+p2;http://update.eclemma.org/#>>#tools/eclemma
 
 # CheckStyle integration
-http://eclipse-cs.sourceforge.net/update#>>#tools/checkstyle
+p2;http://eclipse-cs.sourceforge.net/update#>>#tools/checkstyle
 
 # Useful addons for CheckStyle
-http://sevntu-checkstyle.github.com/sevntu.checkstyle/update-site#>>#tools/sevntu.checkstyle
+p2;http://sevntu-checkstyle.github.com/sevntu.checkstyle/update-site#>>#tools/sevntu.checkstyle
 
 # PMD
-http://sourceforge.net/projects/pmd/files/pmd-eclipse/update-site#>>#tools/pmd
+p2;http://sourceforge.net/projects/pmd/files/pmd-eclipse/update-site#>>#tools/pmd
 
 # FindBugs
-http://findbugs.cs.umd.edu/eclipse#>>#tools/findbugs
-
-# ShellEd
-http://downloads.sourceforge.net/project/shelled/shelled/ShellEd%202.0.2/update#>>#tools/shelled
-
-# WickedShell
-http://www.wickedshell.net/updatesite#>>#tools/wickedshell
-
-# Jupiter Code Review
-http://jupiter-eclipse-plugin.googlecode.com/svn/trunk/site/#>>#tools/jupiter
-
-# soapUI
-http://www.soapui.org/eclipse/update#>>#tools/soapui
+mirror;http://findbugs.cs.umd.edu/eclipse#>>#tools/findbugs
 
 # TestNG
-http://beust.com/eclipse#>>#tools/testng/e3.4
-# http://beust.com/eclipse1#>>#tools/testng/e3.3 # Frozen archive
-
-# Eclipse Perl Integration
-http://e-p-i-c.sf.net/updates#>>#tools/epic/stable
-http://e-p-i-c.sf.net/updates/testing#>>#tools/epic/testing
-
-# PyDev
-http://pydev.org/updates#>>#tools/pydev
+mirror;http://beust.com/eclipse#>>#tools/testng/e3.4
+mirror;http://beust.com/eclipse1#>>#tools/testng/e3.3
 
 # Unnecessary Code Detector
-http://ucdetector.sourceforge.net/update#>>#tools/ucdetector
+mirror;http://ucdetector.sourceforge.net/update#>>#tools/ucdetector
 
 # JadClipse Java Decompiler plugin
-http://jadclipse.sf.net/update#>>#tools/jadclipse
+mirror;http://jadclipse.sf.net/update#>>#tools/jadclipse
 
 # JD-Eclipse
-http://jd.benow.ca/jd-eclipse/update#>>#tools/jd-eclipse
+mirror;http://jd.benow.ca/jd-eclipse/update#>>#tools/jd-eclipse
 
-# Redmine-Mylyn Connector
-http://redmin-mylyncon.sourceforge.net/update-site/N/#>>#tools/redmine-mylyn
+# JCraft
+mirror;http://eclipse.jcraft.com/#>>#tools/jcraft
 
 # m2eclipse-wtp
-http://download.jboss.org/jbosstools/updates/m2e-extensions/m2eclipse-wtp/0.13.1#>>#tools/m2eclipse-wtp/e3.6
-http://download.jboss.org/jbosstools/updates/m2e-extensions/m2eclipse-wtp/0.15.3#>>#tools/m2eclipse-wtp/e3.7
-http://download.jboss.org/jbosstools/updates/m2e-extensions/m2eclipse-wtp/0.16.0#>>#tools/m2eclipse-wtp/e4.2
-http://download.jboss.org/jbosstools/updates/m2e-extensions/m2e-mavenarchiver#>>#tools/m2e-mavenarchiver
+p2;http://download.jboss.org/jbosstools/updates/m2e-extensions/m2eclipse-wtp/0.13.1#>>#tools/m2eclipse-wtp/e3.6
+p2;http://download.jboss.org/jbosstools/updates/m2e-extensions/m2eclipse-wtp/0.15.3#>>#tools/m2eclipse-wtp/e3.7
+p2;http://download.jboss.org/jbosstools/updates/m2e-extensions/m2eclipse-wtp/0.16.0#>>#tools/m2eclipse-wtp/e4.2
+p2;http://download.jboss.org/jbosstools/updates/m2e-extensions/m2e-mavenarchiver#>>#tools/m2e-mavenarchiver
+
+# ANTLR IDE
+mirror;http://antlrv3ide.sourceforge.net/updates#>>#tools/antlrv3/e3.7
+mirror;http://antlrv3ide.sourceforge.net/updates/3.6#>>#tools/antlrv3/e3.6
+mirror;http://antlrv3ide.sourceforge.net/updates/2.0.2#>>#tools/antlrv3/e3.5
+
+# Eclipse Perl Integration
+mirror;http://e-p-i-c.sf.net/updates#>>#tools/epic/stable
+p2;http://e-p-i-c.sf.net/updates/testing#>>#tools/epic/testing
+
+# ShellEd
+p2;http://downloads.sourceforge.net/project/shelled/shelled/ShellEd%202.0.2/update#>>#tools/shelled
+
+# PyDev
+p2;http://pydev.org/updates#>>#tools/pydev
+
+# PHP Tool Integration
+p2;http://www.phpsrc.org/eclipse/pti#>>#tools/pti/stable
+p2;http://www.phpsrc.org/eclipse/pti-dev#>>#tools/pti/testing
+
+# MakeGood
+mirror;http://eclipse.piece-framework.com/#>>#tools/makegood
+
+# WickedShell
+mirror;http://www.wickedshell.net/updatesite#>>#tools/wickedshell
+
+# soapUI
+mirror;http://www.soapui.org/eclipse/update#>>#tools/soapui
+
+# Regexutil 
+mirror;http://regex-util.sourceforge.net/update#>>#tools/regexutil
+
+# Plugins by Andrei Loskutov
+mirror;http://andrei.gmxhome.de/eclipse#>>#tools/loskutov
+
+# subclipse
+mirror;http://subclipse.tigris.org/update_1.10.x#>>#tools/subclipse/1.10.x
+mirror;http://subclipse.tigris.org/update_1.8.x#>>#tools/subclipse/1.8.x
+mirror;http://subclipse.tigris.org/update_1.6.x#>>#tools/subclipse/1.6.x
+mirror;http://subclipse.tigris.org/update_1.4.x#>>#tools/subclipse/1.4.x
+
+# Jupiter Code Review
+mirror;http://jupiter-eclipse-plugin.googlecode.com/svn/trunk/site/#>>#tools/jupiter
+
+# Redmine-Mylyn Connector
+p2;http://redmin-mylyncon.sourceforge.net/update-site/N/#>>#tools/redmine-mylyn
+
+# Apache Directory Studio
+mirror;http://directory.apache.org/studio/update/1.5.3.v20100330#>>#tools/ads/1.5.3
+
+# QuantumDB
+mirror;http://quantum.sourceforge.net/update-site#>>#tools/quantum
+
+# SQL Explorer
+mirror;http://eclipsesql.sourceforge.net#>>#tools/sqlexplorer
+
+# COBOL Development Environment
+mirror;http://svn.codespot.com/a/eclipselabs.org/code/trunk/UpdateSite/#>>#tools/coboldevenv
+
+# Scala IDE
+p2;http://download.scala-ide.org/sdk/e38/scala210/stable/site#>>#tools/scalaide/2.10/e4.2
+p2;http://download.scala-ide.org/sdk/e38/scala29/stable/site#>>#tools/scalaide/2.9/e4.2
+p2;http://download.scala-ide.org/sdk/e37/scala210/stable/site#>>#tools/scalaide/2.10/e3.7
+p2;http://download.scala-ide.org/sdk/e37/scala29/stable/site#>>#tools/scalaide/2.9/e3.7
+mirror;http://download.scala-ide.org/releases-28/stable/site#>>#tools/scalaide/2.8/e3.7
+
+# Aptana Studio
+p2;http://download.aptana.com/studio3/plugin/install#>>#tools/aptana/studio3/install
+p2;http://download.aptana.com/studio3/plugin/update#>>#tools/aptana/studio3/update
+p2;http://download.aptana.com/studio3-rcp/plugin/update#>>#tools/aptana/studio3/rcp
+p2;http://download.aptana.com/tools/radrails/plugin/install/radrails-bundle#>>#tools/aptana/radrails/bundle
+p2;http://download.aptana.com/tools/studio/plugin/install/studio#>>#tools/aptana/studio2/install
+p2;http://update.aptana.com/update/studio/3.4#>>#tools/aptana/studio/e3.4
+mirror;http://update.aptana.com/update/studio/3.2#>>#tools/aptana/studio/e3.2
+
+# Google Plugin for Eclipse
+p2;https://dl.google.com/eclipse/plugin/4.3#>>#tools/googleplugin/e4.4
+p2;https://dl.google.com/eclipse/plugin/4.3#>>#tools/googleplugin/e4.3
+p2;https://dl.google.com/eclipse/plugin/4.2#>>#tools/googleplugin/e4.2
+p2;https://dl.google.com/eclipse/plugin/3.7#>>#tools/googleplugin/e3.7
+p2;https://dl.google.com/eclipse/plugin/3.6#>>#tools/googleplugin/e3.6
+
+# Spring Tool Suite
+p2;http://dist.springsource.com/release/TOOLS/update/e4.4#>>#tools/springtoolsuite/e4.4
+p2;http://dist.springsource.com/release/TOOLS/update/e4.3#>>#tools/springtoolsuite/e4.3
+p2;http://dist.springsource.com/release/TOOLS/update/e4.2#>>#tools/springtoolsuite/e4.2
+p2;http://dist.springsource.com/release/TOOLS/update/e3.8#>>#tools/springtoolsuite/e3.8
+p2;http://dist.springsource.com/release/TOOLS/update/e3.7#>>#tools/springtoolsuite/e3.7
 
 # JBoss Tools
-http://download.jboss.org/jbosstools/updates/stable/juno#>>#tools/jbosstools/e4.2
-http://download.jboss.org/jbosstools/updates/stable/indigo#>>#tools/jbosstools/e3.7
-http://download.jboss.org/jbosstools/updates/stable/indigo/soa-tooling#>>#tools/soatools/e3.7
-http://download.jboss.org/jbosstools/updates/stable/helios#>>#tools/jbosstools/e3.6
-http://download.jboss.org/jbosstools/updates/JBossTools-3.1.1.GA#>>#tools/jbosstools/e3.5
-http://download.jboss.org/jbosstools/updates/JBossTools-3.0.3.GA#>>#tools/jbosstools/e3.4
+p2;http://download.jboss.org/jbosstools/updates/stable/luna#>>#tools/jbosstools/e4.4
+p2;http://download.jboss.org/jbosstools/updates/stable/kepler#>>#tools/jbosstools/e4.3
+p2;http://download.jboss.org/jbosstools/updates/stable/juno#>>#tools/jbosstools/e4.2
+p2;http://download.jboss.org/jbosstools/updates/stable/indigo#>>#tools/jbosstools/e3.7
+p2;http://download.jboss.org/jbosstools/updates/stable/indigo/soa-tooling#>>#tools/soatools/e3.7
+p2;http://download.jboss.org/jbosstools/updates/stable/helios#>>#tools/jbosstools/e3.6
+p2;http://download.jboss.org/jbosstools/updates/JBossTools-3.1.1.GA#>>#tools/jbosstools/e3.5
+p2;http://download.jboss.org/jbosstools/updates/JBossTools-3.0.3.GA#>>#tools/jbosstools/e3.4
 
 # Oracle Enterprise Pack for Eclipse
-http://download.oracle.com/otn_software/oepe/12.1.1.2.1/juno/repository#>>#tools/oracleenterprise/e4.2
-http://download.oracle.com/otn_software/oepe/12.1.1.1.1/indigo#>>#tools/oracleenterprise/e3.7
-http://download.oracle.com/otn_software/oepe/helios#>>#tools/oracleenterprise/e3.6
-http://download.oracle.com/otn_software/oepe/galileo#>>#tools/oracleenterprise/e3.5
-http://download.oracle.com/otn_software/oepe/ganymede#>>#tools/oracleenterprise/e3.4
+p2;http://download.oracle.com/otn_software/oepe/12.1.3.3.1/luna/repository#>>#tools/oracleenterprise/e4.4
+p2;http://download.oracle.com/otn_software/oepe/12.1.2.1.1/kepler/repository#>>#tools/oracleenterprise/e4.3
+p2;http://download.oracle.com/otn_software/oepe/12.1.1.2.1/juno/repository#>>#tools/oracleenterprise/e4.2
+p2;http://download.oracle.com/otn_software/oepe/12.1.1.1.1/indigo#>>#tools/oracleenterprise/e3.7
+p2;http://download.oracle.com/otn_software/oepe/helios#>>#tools/oracleenterprise/e3.6
+p2;http://download.oracle.com/otn_software/oepe/galileo#>>#tools/oracleenterprise/e3.5
+p2;http://download.oracle.com/otn_software/oepe/ganymede#>>#tools/oracleenterprise/e3.4
+
+# Java 8 for Eclipse Kepler
+p2;http://download.eclipse.org/eclipse/updates/4.3-P-builds/#>>#updates/4.3-java8
+p2;http://download.eclipse.org/technology/m2e/releases/1.4/1.4.1.20140328-1905/#>>#updates/4.3-java8/m2e
+p2;http://download.eclipse.org/webtools/patches/drops/R3.5.2/P-3.5.2-20140329045715/repository/#>>#updates/4.3-java8/facets
 
