@@ -1,0 +1,14 @@
+#!/bin/bash
+
+CASK=/opt/homebrew-cask/Caskroom
+
+for cask in `ls $CASK`; do
+  ver=`brew cask info $cask | grep ^$cask:`
+  version=${ver##* }
+  if [ ! -d ${CASK}/${cask}/${version} ]; then
+    echo $cask - $ver
+    ls ${CASK}/${cask}
+    brew cask uninstall --force ${cask}
+    brew cask install ${cask}
+  fi
+done
