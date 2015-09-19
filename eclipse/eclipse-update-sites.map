@@ -131,6 +131,39 @@ mirror;http://eclipsesql.sourceforge.net#>>#tools/sqlexplorer
 # COBOL Development Environment
 mirror;http://svn.codespot.com/a/eclipselabs.org/code/trunk/UpdateSite/#>>#tools/coboldevenv
 
+# Crap4j
+mirror;http://www.crap4j.org/downloads/update#>>#tools/crap4j
+
+# EditBox
+mirror;http://editbox.sourceforge.net/updates#>>#tools/editbox
+
+# infinitest
+p2;http://infinitest.github.io#>>#tools/infinitest
+
+# JAutoDoc
+mirror;http://jautodoc.sourceforge.net/update/#>>#tools/jautodoc
+
+# JDeodorant
+mirror;https://github.com/tsantalis/JDeodorant#>>#tools/jdeodorant
+
+# JUnitLoops
+mirror;http://www.junitloop.org/update#>>#tools/
+
+# Lint4J
+mirror;http://www.jutils.com/eclipse-update#>>#tools/lint4j
+
+# ModelGoon UML4Java
+mirror;http://www.modelgoon.org/update#>>#tools/modelgoon
+
+# Optimizer
+mirror;http://update.zeroturnaround.com/free-tools/site/#>>#tools/optimizer
+
+# Apache Wicket for Eclipse
+mirror;http://qwickie.googlecode.com/git/qwickie.updatesite/#>>#tools/qwickie
+
+# Workspace Mechanic
+mirror;http://workspacemechanic.eclipselabs.org.codespot.com/git.update/mechanic#>>#tools/workspacemechanic
+
 # Scala IDE
 p2;http://download.scala-ide.org/sdk/e38/scala210/stable/site#>>#tools/scalaide/2.10/e4.2
 p2;http://download.scala-ide.org/sdk/e38/scala29/stable/site#>>#tools/scalaide/2.9/e4.2
@@ -153,6 +186,10 @@ p2;https://dl.google.com/eclipse/plugin/4.3#>>#tools/googleplugin/e4.3
 p2;https://dl.google.com/eclipse/plugin/4.2#>>#tools/googleplugin/e4.2
 p2;https://dl.google.com/eclipse/plugin/3.7#>>#tools/googleplugin/e3.7
 p2;https://dl.google.com/eclipse/plugin/3.6#>>#tools/googleplugin/e3.6
+
+# Google Analytix
+mirror;https://developers.google.com/java-dev-tools/codepro/doc/installation/updatesite_3.4#>>#tools/googleanalytix/e3.4
+mirror;https://developers.google.com/java-dev-tools/codepro/doc/installation/updatesite_3.5#>>#tools/googleanalytix/e3.5
 
 # Spring Tool Suite
 p2;http://dist.springsource.com/release/TOOLS/update/e4.4#>>#tools/springtoolsuite/e4.4
