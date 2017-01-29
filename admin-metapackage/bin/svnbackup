@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 #
-# svnbackup - Backup für Subversion Repositories
+# svnbackup - Backup Subversion repsoritories using dump
 #
-# (c) 2011 Gerrit Beine
+# (c) 2011-2012 Gerrit Beine
 #
 umask 022
 
@@ -11,6 +11,11 @@ export PATH
 
 if [ -f /etc/sysconfig/svnbackup ] ; then
   . /etc/sysconfig/svnbackup
+fi
+
+if [[ "$RUN_SVNBACKUP" != [yY][eE][sS] ]]; then
+  [ $DEBUG ] && echo "Not running Subversion backup script, it's disabled"
+  exit 0
 fi
 
 DATE=`date +%Y%m%d`
@@ -23,18 +28,28 @@ COMPRESS_FIND_OPTIONS="-type f -exec gzip --force --best --rsyncable {} ;"
 
 for repos in `find ${SVN_DATA_DIR} -type d`; do
 
-	file=${repos##*/}
-	[ $DEBUG ] && echo "svnadmin dump '${repos}' > ${SVN_BACKUP_DIR}/${file}-${DATE}.svndump"
-	svnadmin dump "${repos}" > "${SVN_BACKUP_DIR}/${file}-${DATE}.svndump"
+  [ ! -d "${repos}/conf" ] && continue
 
-	[ $DEBUG ] && echo "find ${SVN_BACKUP_DIR} -name '${repos}*' ${CLEAN_FIND_OPTIONS}"
-	find "${SVN_BACKUP_DIR}" -name "${file}*" ${CLEAN_FIND_OPTIONS}
+  file=${repos##${SVN_DATA_DIR}/}
+  file=${file//\//__}
+  lastchange=`svn info --xml "file://${repos}" | grep '<date>'`
+  lastchange=${lastchange##<date>}
+  lastchange=${lastchange//<\/date>}
+  timestamp=`date +%s -d $lastchange`
+  [ $DEBUG ] && echo "last change at ${lastchange}, timestamp ${timestamp}"
+
+  if [ $(($TIMESTAMP - $timestamp)) -lt 86400 ]; then
+    [ $DEBUG ] && echo "svnadmin dump '${repos}' > ${SVN_BACKUP_DIR}/${file}-${DATE}.svndump"
+    svnadmin dump "${repos}" > "${SVN_BACKUP_DIR}/${file}-${DATE}.svndump"
+    if [ -n "$SVN_COMPRESS_BACKUP" -a "$SVN_COMPRESS_BACKUP" = "yes" ]; then
+      gzip "${SVN_BACKUP_DIR}/${file}-${DATE}.svndump"
+    fi
+    [ $DEBUG ] && echo "find ${SVN_BACKUP_DIR} -name '${repos}*' ${CLEAN_FIND_OPTIONS}"
+    find "${SVN_BACKUP_DIR}" -name "${file}*" ${CLEAN_FIND_OPTIONS}
+  else
+    [ $DEBUG ] && echo "no changes at $repos, no new backup will be created"
+  fi
 
 done
-
-if [ -n "$SVN_COMPRESS_BACKUP" -a "$SVN_COMPRESS_BACKUP" = "yes" ]; then
-	[ $DEBUG ] && echo "find '${SVN_BACKUP_DIR}'  -name *.svndump ${COMPRESS_FIND_OPTIONS}"
-	find "${SVN_BACKUP_DIR}" -name "*.svndump" ${COMPRESS_FIND_OPTIONS}
-fi
 
 exit 0

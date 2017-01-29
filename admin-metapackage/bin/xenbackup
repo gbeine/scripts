@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 #
-# xenbackup - Backup von Xen Hosts
+# xenbackup - Backup a set of LVM based Xen domU
 #
 # (c) 2011 Gerrit Beine
 #
-
 umask 022
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -14,11 +13,17 @@ if [ -f /etc/sysconfig/xenbackup ] ; then
     . /etc/sysconfig/xenbackup
 fi
 
+if [[ "$RUN_XENBACKUP" != [yY][eE][sS] ]]; then
+  [ $DEBUG ] && echo "Not running Xen backup script, it's disabled"
+  exit 0
+fi
+
+
 function create_snapshots {
   host=${1}
   [ ${DEBUG} ] && echo "Creating snapshots for ${host}"
   # Nur Volumes suchen, die zu einem Host gehören und nicht auf das Snapshot Suffix enden
-  for vol in `find /dev/${LVM_VG} -type l -name "${host}*" -not -name "*${LVM_SUFFIX}" ${LVM_IGNORE}`; do
+  for vol in `find /dev/${LVM_VG} -type l -name "${host}*" -not -name "*${LVM_SUFFIX}" -not -name "${LVM_IGNORE}"`; do
     [ ${DEBUG} ] && echo "Found volume ${vol}"
     snapshot="${vol##*/}_${LVM_SUFFIX}"
     [ ${DEBUG} ] && echo "Snapshot name ${snapshot}"
@@ -27,7 +32,7 @@ function create_snapshots {
     # Prüfen, ob Verzeichnis bereits existiert
     [ -d ${LVM_SNAPSHOT}/${snapshot} ] || /bin/mkdir ${LVM_SNAPSHOT}/${snapshot}
     # Prüfen, ob Verzeichnis bereits gemountet ist
-    grep ${LVM_SNAPSHOT}/${snapshot} /etc/mtab >/dev/null || /bin/mount -o ro ${vol} ${LVM_SNAPSHOT}/${snapshot}
+    grep ${LVM_SNAPSHOT}/${snapshot} /etc/mtab >/dev/null || /bin/mount -o ro /dev/${LVM_VG}/${snapshot} ${LVM_SNAPSHOT}/${snapshot}
   done;
 }
 
@@ -36,11 +41,11 @@ function remove_snapshots {
   [ ${DEBUG} ] && echo "Removing snapshots for ${host}"
   for snapshot in `find /dev/${LVM_VG} -type l -name "${host}*${LVM_SUFFIX}"`; do
     [ ${DEBUG} ] && echo "Found snapshot ${snapshot}"
-    vol="${snapshot%%_${LVM_SUFFIX}}"
+    vol="${snapshot}"
     [ ${DEBUG} ] && echo "Volume name ${vol}"
     /bin/umount ${vol}
     while [ -b ${snapshot} ]; do
-      /sbin/lvremove -f ${snapshot}
+      /sbin/lvremove -f ${snapshot} || sleep 1
     done
   done;
 }

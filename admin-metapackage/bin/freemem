@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# freemem - Purge the caches
+#
+# (c) 2012 Gerrit Beine
+#
+umask 022
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+if [ -f /etc/sysconfig/admin-metapackage ] ; then
+  . /etc/sysconfig/admin-metapackage
+fi
+
+if [ -z "$RUN_FREEMEM" ]; then
+  [ $DEBUG ] && echo "Not running free memory script, it's disabled"
+  exit 0
+fi
+
+if [[ "$0" =~ "$RUN_FREEMEM" ]]; then
+  [ $DEBUG ] && echo "Running free memory script"
+  sync && echo 3 > /proc/sys/vm/drop_caches
+fi
+
+exit 0

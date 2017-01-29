@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# zypper - Refresh repository data
+#
+# (c) 2011 Gerrit Beine
+#
+umask 022
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+if [ -f /etc/sysconfig/admin-metapackage ] ; then
+  . /etc/sysconfig/admin-metapackage
+fi
+
+if [ -z "$RUN_ZYPPER" ]; then
+  [ $DEBUG ] && echo "Not running zypper refresh script, it's disabled"
+  exit 0
+fi
+
+if [[ "$0" =~ "$RUN_ZYPPER" ]]; then
+  [ $DEBUG ] && echo "Running zypper refresh script"
+  if [ $DEBUG ]; then
+    zypper refresh
+  else
+    zypper refresh >/dev/null
+  fi
+fi
+
+exit 0

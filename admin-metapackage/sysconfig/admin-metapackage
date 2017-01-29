@@ -1,0 +1,17 @@
+## Type:	string
+## Default:	""
+#
+# Set to any value to enable debugging mode
+DEBUG=""
+
+## Type:	list(hourly,daily,weekly)
+## Default:	""
+#
+# Purge the caches once a day or once a week
+RUN_FREEMEM=""
+
+## Type:	list(hourly,daily,weekly)
+## Default:	"daily"
+#
+# Refresh package repository data once a day or once a week
+RUN_ZYPPER="hourly"

@@ -1,4 +1,13 @@
-DEBUG=1
+## Type:        string
+## Default:     ""
+#
+# Set to any value to enable debugging mode
+DEBUG=""
+
+## Type:        yesno
+## Default:     no
+#
+RUN_SVNBACKUP=no
 
 ## Type:        string
 ## Default:     "/var/backup/svn"

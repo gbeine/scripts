@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # mysqlbackup - MySQL Backup
 #
@@ -20,7 +20,7 @@ fi
 
 DATE=`date +%Y%m%d`
 
-MYSQL_DUMP_OPTIONS="--host=${MYSQL_HOST} --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD} --flush-logs --add-locks --lock-tables --events"
+MYSQL_DUMP_OPTIONS="--host=${MYSQL_HOST} --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD} --flush-logs --add-locks --lock-tables"
 MYSQL_HOTCOPY_OPTIONS="--user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD} --allowold --keepold"
 
 CLEAN_DATE=`date --date="${MYSQL_KEEP_DAYS} days ago" +%Y%m%d`
@@ -30,11 +30,6 @@ COMPRESS_FIND_OPTIONS="-type f -exec gzip --force --best --rsyncable {} ;"
 
 # the sed strips all beginning |, all ending | and all lines +--...--+; the awk skips the first line which is usually "Databases"
 for db in `mysqlshow --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD} | sed -e s/^\|//g -e s/\|$//g -e /^+.*+$/d | awk 'NR<2{next};1'`; do
-        if [[ "$MYSQL_IGNORE_SCHEMA" == *"$db"* ]]; then
-               [ $DEBUG ] && echo "ignoring $db because it is listed in IGNORE_SCHEMA"
-               continue
-        fi
-
         if [ -n "$MYSQL_USE_REPLICATION" -a "$MYSQL_USE_REPLICATION" = "yes" ]; then
                 [ $DEBUG ] && echo "mysqladmin stop --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD}"
                 mysqladmin stop --user=${MYSQL_BACKUP_USER} --password=${MYSQL_BACKUP_PASSWORD}
@@ -62,4 +57,3 @@ if [ -n "$MYSQL_COMPRESS_BACKUP" -a "$MYSQL_COMPRESS_BACKUP" = "yes" ]; then
 fi
 
 exit 0
-

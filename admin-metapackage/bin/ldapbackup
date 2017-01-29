@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # ldapbackup - Backup an OpenLDAP database
 #
@@ -37,4 +37,3 @@ if [ -n "$LDAP_COMPRESS_BACKUP" -a "$LDAP_COMPRESS_BACKUP" = "yes" ]; then
 fi
 
 exit 0
-

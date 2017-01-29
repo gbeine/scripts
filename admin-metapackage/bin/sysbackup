@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# sysbackup - Backup system using rsync
+#
+# (c) 2011-2012 Gerrit Beine
+#
+umask 022
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+if [ -f /etc/sysconfig/sysbackup ] ; then
+	    . /etc/sysconfig/sysbackup
+fi
+
+if [[ "$RUN_SYSBACKUP" != [yY][eE][sS] ]]; then
+  [ $DEBUG ] && echo "Not running system backup script, it's disabled"
+  exit 0
+fi
+
+# exit immediately if there is another instance running
+if checkproc /usr/bin/rsync; then
+  /bin/logger -t rsync "ALERT another instance of rsync is running - exiting"
+  exit 1;
+fi
+
+/usr/bin/rsync \
+  ${RSYNC_OPTIONS} \
+  ${RSYNC_EXCLUDE} \
+  / \
+  ${RSYNC_URI} \
+  2>&1 | tee ${RSYNC_LOG}
+
+EXITVALUE=${PIPESTATUS[0]}
+
+if [ $EXITVALUE != 0 ]; then
+  /bin/logger -t rsync "ALERT exited abnormally with [$EXITVALUE]"
+  /bin/logger -t rsync "See ${RSYNC_LOG} for detail"
+fi
+
+exit 0
+

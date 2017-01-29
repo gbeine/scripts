@@ -1,0 +1,38 @@
+## Type:        string
+## Default:     ""
+#
+# Set to any value to enable debugging mode
+DEBUG=""
+
+## Type:        yesno
+### Default:     no
+##
+RUN_SYSBACKUP=yes
+
+## Type:        string(/var/log/rsync.log)
+## Default:     /var/log/rsync.log
+#
+# The rsync client logfile
+#
+RSYNC_LOG="/var/log/rsync.log"
+
+## Type:        string
+## Default:     ""
+#
+# The rsync server and module uri
+#
+RSYNC_URI="192.168.110.8::gw"
+
+## Type:        string
+## Default:     "--exclude=/dev --exclude=/media --exclude=/mnt --exclude=/proc --exclude=/sys --exclude=/tmp --exclude=/var/lib/ntp/proc --exclude=/var/tmp"
+#
+# The filesystem patterns rsync should exclude during backup
+#
+RSYNC_EXCLUDE="--exclude=/bin --exclude=/dev --exclude=/lib --exclude=/lib64 --exclude=/media --exclude=/mnt --exclude=/opt --exclude=/proc --exclude=/run --exclude=/sbin --exclude=/selinux --exclude=/sys --exclude=/tmp --exclude=/usr --exclude=/var/cache/squid --exclude=/var/lib/ntp/proc --exclude=/var/tmp --exclude=/backup"
+
+## Type:        string
+## Default:     "-rav --delete --delete-excluded"
+#
+# Options for the rsync client
+#
+RSYNC_OPTIONS="-rav --delete --delete-excluded"
