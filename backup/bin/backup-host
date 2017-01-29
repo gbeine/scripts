@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# Spiegelung eines physischen Servers
+#
+# Copyright (C) 2007 - Gerrit Beine <gerrit@beine-computer.de>
+#
+# $Revision: 1.2 $
+# $Date: 2007/09/02 10:45:15 $
+#
+
+ETC=%%ETC%%
+
+. ${ETC}/host.conf || exit 1
+
+${SSH} ${SSHOPTIONS}
+SSH_PID=`${PS} ${PSOPTIONS} | ${GREP} "${SSH} ${SSHOPTIONS}" | ${GREP} -v 'grep' | ${GREP} -v 'passive' | ${AWK} '{print $1}'`
+
+# synchronize data
+${SUDO} \
+${RSYNC} -raAv \
+${RSYNCOPTIONS} \
+${RSYNCINCLUDES} \
+${RSYNCEXCLUDES} \
+${SRCURL} ${RSYNCURL}
+
+# stops ssh port forwarding
+${KILL} ${SSH_PID}

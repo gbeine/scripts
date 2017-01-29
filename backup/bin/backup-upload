@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Upload der Archive
+#
+# Copyright (C) 2007 - Gerrit Beine <gerrit@beine-computer.de>
+#
+# $Revision: 1.2 $
+# $Date: 2007/08/03 18:36:03 $
+#
+
+ETC=%%ETC%%
+
+. ${ETC}/upload.conf || exit 1
+
+${CAT} ${FTPSCRIPT} | ${SED} -e "s#<<FTPSERVER>>#${FTPSERVER}#" | ${SED} -e "s#<<UPLOAD>>#${UPLOAD}#" | ${FTP}
+
+${MV} ${UPLOAD}/* ${ARCHIV}

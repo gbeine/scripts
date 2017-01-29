@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# Spiegelung von Jails
+#
+# Copyright (C) 2007 - Gerrit Beine <gerrit@beine-computer.de>
+#
+# $Revision: 1.3 $
+# $Date: 2007/09/24 16:10:21 $
+#
+
+ETC=%%ETC%%
+
+[ -n "${1}" ] || exit 1
+
+. ${ETC}/jail.conf || exit 1
+
+${SSH} ${SSHOPTIONS}
+SSHPID=`${PS} ${PSOPTIONS} | ${GREP} "${SSH} ${SSHOPTIONS}" | ${GREP} -v 'grep' | ${GREP} -v 'passive' | ${AWK} '{print $1}'`
+
+# synchronize data
+${SUDO} \
+${RSYNC} -raAv \
+${RSYNCOPTIONS} \
+${RSYNCEXCLUDES} \
+${RSYNCINCLUDES} \
+${SRCURL} ${RSYNCURL}
+
+# stops ssh port forwarding
+${KILL} ${SSHPID}

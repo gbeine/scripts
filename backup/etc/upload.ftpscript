@@ -1,0 +1,4 @@
+prompt off
+open <<FTPSERVER>>
+lcd <<UPLOAD>>
+mput *.gpg

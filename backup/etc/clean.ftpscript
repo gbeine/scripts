@@ -1,0 +1,3 @@
+prompt off
+open <<FTPSERVER>>
+delete <<FILE>>

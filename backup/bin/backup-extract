@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Extrahierung der Backups
+#
+# Copyright (C) 2007 - Gerrit Beine <gerrit@beine-computer.de>
+#
+# $Revision: 1.2 $
+# $Date: 2007/09/24 16:10:21 $
+#
+
+ETC=%%ETC%%
+
+. ${ETC}/extract.conf || exit 1
+
+file=${1}-${2}.gz
+
+src=${RESTORE}/${file}
+
+[ -f ${src} ] || exit 1
+
+${CD} ${RESTORE} &&
+${GZIP} \
+${GZIPOPTIONS} ${src} | \
+${STAR} -xv \
+${STAROPTIONS}

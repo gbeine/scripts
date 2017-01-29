@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Restore ausführen
+#
+# Copyright (C) 2007 - Gerrit Beine <gerrit@beine-computer.de>
+#
+# $Revision: 1.1 $
+# $Date: 2007/09/24 16:10:21 $
+#
+
+file=${1}
+date=${2}
+
+./backup-decrypt ${file} ${date}
+./backup-extract ${file} ${date}

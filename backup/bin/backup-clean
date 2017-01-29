@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# Entfernen alter Backups
+#
+# Copyright (C) 2007 - Gerrit Beine <gerrit@beine-computer.de>
+#
+# $Revision: 1.1 $
+# $Date: 2007/08/03 18:36:03 $
+#
+
+ETC=%%ETC%%
+
+. ${ETC}/clean.conf || exit 1
+
+${FIND} ${ARCHIV} ${FINDOPTIONS}
+
+for file in `${LS} ${DELETE}/*.gz.gpg`; do
+
+    ftpfile=${file##*/}
+    ${CAT} ${FTPSCRIPT} | ${SED} -e "s#<<FTPSERVER>>#${FTPSERVER}#" | ${SED} -e "s#<<FILE>>#${ftpfile}#" | ${FTP}
+    ${RM} ${file}
+
+done

@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# Sicherung von MySQL
+#
+# Copyright (C) 2007 - Gerrit Beine <gerrit@beine-computer.de>
+#
+# $Revision: 1.3 $
+# $Date: 2007/12/28 20:23:40 $
+#
+
+ETC=%%ETC%%
+
+. ${ETC}/mysql.conf || exit 1
+
+_MYSQLBACKUPDIR=${MYSQLBACKUPDIR}/${DATE}
+
+${MKDIR} ${_MYSQLBACKUPDIR}
+
+for db in `${SUDO} ${FIND} ${MYSQLDATADIR} ${MYSQLFINDOPTIONS} | ${SED} ${MYSQLSEDOPTIONS}`; do
+    ${MYSQLDUMP} ${MYSQLDUMPOPTIONS} ${db} | ${GZIP} > ${_MYSQLBACKUPDIR}/${db}.sql.gz
+done
+
+${FIND} ${MYSQLBACKUPDIR} ${CLEANFINDOPTIONS}
